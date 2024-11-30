@@ -2,6 +2,8 @@
 
 A comprehensive web application for managing and interacting with Supabase projects. Built with HTML, JavaScript, and Bootstrap, hosted on GitHub Pages.
 
+🌐 **Live Demo**: [http://supabase-manager.github.rinuo.com](http://supabase-manager.github.rinuo.com)
+
 ## Features
 
 - 📊 **Dashboard**
@@ -45,6 +47,7 @@ A comprehensive web application for managing and interacting with Supabase proje
 - UI Framework: Bootstrap 5.3.0
 - Backend: Supabase
 - Storage: Supabase Storage
+- Hosting: GitHub Pages with Custom Domain
 
 ## Dependencies
 
@@ -55,7 +58,7 @@ A comprehensive web application for managing and interacting with Supabase proje
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/supabase-manager.git
+   git clone https://github.com/guomengtao/supabase-manager.git
    ```
 
 2. Configure Supabase:
@@ -81,10 +84,23 @@ A comprehensive web application for managing and interacting with Supabase proje
    - Push to GitHub
    - Enable GitHub Pages in your repository settings
    - Set the branch to `main` and folder to `/ (root)`
+   - Configure custom domain (optional):
+     1. Add a CNAME file with your domain
+     2. Configure DNS settings:
+        ```
+        Type: A
+        Name: supabase-manager.github
+        Value: 185.199.108.153
+        ```
+        ```
+        Type: CNAME
+        Name: supabase-manager.github
+        Value: guomengtao.github.io
+        ```
 
 ## Usage
 
-Visit the deployed application and use the navigation menu to access different features:
+Visit [http://supabase-manager.github.rinuo.com](http://supabase-manager.github.rinuo.com) or your deployed instance and use the navigation menu to access different features:
 
 - **Dashboard**: View project statistics and connection details
 - **Project Info**: Explore database schema and project configuration
@@ -95,10 +111,30 @@ Visit the deployed application and use the navigation menu to access different f
 
 ## Security Considerations
 
-- API keys are stored client-side (use environment variables in production)
-- File type validation is implemented
-- Size restrictions are in place for uploads
-- Soft delete is used instead of hard delete
+- Content Security Policy (CSP) implemented
+- Strict HTTPS enforcement
+- File type validation
+- Size restrictions for uploads
+- Cross-origin resource sharing configured
+- Security headers implemented:
+  - X-Content-Type-Options
+  - X-Frame-Options
+  - Strict-Transport-Security
+
+## Development
+
+- **Local Development**:
+  ```bash
+  # Using Python's built-in server
+  python -m http.server 8000
+  # Or using Node.js http-server
+  npx http-server
+  ```
+
+- **Code Style**:
+  - ESLint for JavaScript linting
+  - Prettier for code formatting
+  - Bootstrap conventions for HTML/CSS
 
 ## Contributing
 
@@ -114,5 +150,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- [Supabase](https://supabase.com/) for the amazing backend service
-- [Bootstrap](https://getbootstrap.com/) for the UI framework
+- [Supabase](https://supabase.com) for the amazing backend platform
+- [Bootstrap](https://getbootstrap.com) for the UI framework
+- [GitHub Pages](https://pages.github.com) for hosting
