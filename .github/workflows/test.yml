@@ -23,9 +23,78 @@ jobs:
       run: npm ci
     
     - name: Run tests
-      run: npm test
+      id: run_tests
+      run: |
+        npm test || echo "::set-output name=test_failed::true"
+      continue-on-error: true
+    
+    - name: Process test results
+      if: always()
+      uses: actions/github-script@v7
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      with:
+        script: |
+          const { createClient } = require('@supabase/supabase-js')
+          
+          const supabase = createClient(
+            process.env.SUPABASE_URL,
+            process.env.SUPABASE_KEY
+          )
+          
+          const testResults = require('./coverage/coverage-final.json')
+          
+          // Process test failures
+          for (const file in testResults) {
+            const fileData = testResults[file]
+            
+            // Check for statement coverage
+            for (const line in fileData.s) {
+              if (fileData.s[line] === 0) {
+                await supabase.from('issues').insert({
+                  title: `Uncovered code in ${file}`,
+                  description: `Line ${line} is not covered by tests`,
+                  file_path: file,
+                  line_number: parseInt(line),
+                  severity: 'medium',
+                  workflow_run_id: context.runId.toString(),
+                  workflow_name: context.workflow,
+                  github_action_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+                })
+              }
+            }
+            
+            // Check for branch coverage
+            for (const branch in fileData.b) {
+              if (fileData.b[branch][0] === 0) {
+                await supabase.from('issues').insert({
+                  title: `Uncovered branch in ${file}`,
+                  description: `Branch ${branch} is not covered by tests`,
+                  file_path: file,
+                  severity: 'high',
+                  workflow_run_id: context.runId.toString(),
+                  workflow_name: context.workflow,
+                  github_action_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+                })
+              }
+            }
+          }
+          
+          // If tests failed, create an issue
+          if (steps.run_tests.outputs.test_failed === 'true') {
+            await supabase.from('issues').insert({
+              title: 'Test suite failure',
+              description: 'The test suite failed to complete successfully',
+              severity: 'critical',
+              workflow_run_id: context.runId.toString(),
+              workflow_name: context.workflow,
+              github_action_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            })
+          }
     
     - name: Upload coverage reports
+      if: always()
       uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
