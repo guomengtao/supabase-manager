@@ -1,0 +1,154 @@
+/* Global Styles */
+:root {
+    --primary-color: #00A36C;
+    --secondary-color: #F0F4F8;
+    --danger-color: #DC3545;
+    --success-color: #28A745;
+    --border-radius: 8px;
+}
+
+body {
+    background-color: #F8F9FA;
+}
+
+/* File Manager Styles */
+.upload-area {
+    border: 2px dashed #DDD;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    background-color: var(--secondary-color);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-area:hover,
+.upload-area.drag-over {
+    border-color: var(--primary-color);
+    background-color: rgba(0, 163, 108, 0.05);
+}
+
+.upload-content {
+    color: #666;
+}
+
+.upload-content i {
+    color: var(--primary-color);
+}
+
+/* File List Styles */
+.files-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #DDD;
+    border-radius: var(--border-radius);
+    margin-bottom: 0.5rem;
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+.file-item:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.file-icon {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-right: 1rem;
+}
+
+.file-info {
+    flex-grow: 1;
+}
+
+.file-name {
+    margin: 0;
+    font-weight: 500;
+}
+
+.file-size {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.file-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Upload Queue Styles */
+.upload-queue-item {
+    padding: 0.75rem;
+    border: 1px solid #DDD;
+    border-radius: var(--border-radius);
+    background-color: white;
+}
+
+.upload-filename {
+    font-weight: 500;
+}
+
+.upload-size {
+    margin-left: 0.5rem;
+}
+
+/* Progress Bar Styles */
+.progress {
+    background-color: #E9ECEF;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+/* Toast Styles */
+.toast-container {
+    z-index: 1050;
+}
+
+.toast {
+    border-radius: var(--border-radius);
+}
+
+/* Modal Styles */
+.modal-content {
+    border-radius: var(--border-radius);
+}
+
+.modal-header {
+    background-color: var(--secondary-color);
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .file-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .file-icon {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .file-info {
+        margin-bottom: 1rem;
+    }
+
+    .file-actions {
+        width: 100%;
+        justify-content: center;
+    }
+}

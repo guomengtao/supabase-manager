@@ -2,8 +2,30 @@
 const SUPABASE_URL = 'https://tkcrnfgnspvtzwbbvyfv.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrY3JuZmduc3B2dHp3YmJ2eWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA5ODgwMTgsImV4cCI6MjA0NjU2NDAxOH0.o4kZY3X0XxcpM3OHO3yw7O3of2PPtXdQ4CBFgp3CMO8';
 
-// Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Initialize Supabase client with retries and error handling
+let supabase;
+try {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: {
+            autoRefreshToken: true,
+            persistSession: true
+        },
+        global: {
+            headers: {
+                'X-Client-Info': 'supabase-manager',
+            },
+        },
+        realtime: {
+            params: {
+                eventsPerSecond: 10
+            }
+        }
+    });
+} catch (error) {
+    console.error('Failed to initialize Supabase client:', error);
+    // Show error message to user
+    document.getElementById('errorMessage')?.textContent = 'Failed to connect to database. Please try again later.';
+}
 
 // Storage bucket names
 const STORAGE_BUCKETS = {
@@ -31,11 +53,20 @@ const TABLES = {
     ARTICLES: 'articles'
 };
 
+// Error handling configuration
+const ERROR_MESSAGES = {
+    CONNECTION_ERROR: 'Unable to connect to the database. Please check your internet connection.',
+    UNAUTHORIZED: 'You are not authorized to perform this action.',
+    RATE_LIMIT: 'Too many requests. Please try again later.',
+    DEFAULT: 'An unexpected error occurred. Please try again.'
+};
+
 // Export configurations
 const CONFIG = {
     STORAGE_BUCKETS,
     UPLOAD_CONFIG,
-    TABLES
+    TABLES,
+    ERROR_MESSAGES
 };
 
 // Export the configuration and Supabase client

@@ -1,3 +1,5 @@
+import { supabase } from './config.js';
+
 class FileManager {
     constructor() {
         this.supabase = supabase;
@@ -177,10 +179,10 @@ class FileManager {
                             <p class="file-size">${this.formatFileSize(file.metadata.size)}</p>
                         </div>
                         <div class="file-actions">
-                            <button class="btn btn-sm btn-primary" onclick="fileManager.showLinkModal('${publicUrl}', '${file.name}')">
+                            <button class="btn btn-sm btn-primary" onclick="window.fileManager.showLinkModal('${publicUrl}', '${file.name}')">
                                 Get Link
                             </button>
-                            <button class="btn btn-sm btn-danger" onclick="fileManager.deleteFile('${file.name}')">
+                            <button class="btn btn-sm btn-danger" onclick="window.fileManager.deleteFile('${file.name}')">
                                 Delete
                             </button>
                         </div>
@@ -211,7 +213,7 @@ class FileManager {
 
             const statsElement = document.getElementById('storageStats');
             statsElement.innerHTML = `
-                <div class="progress">
+                <div class="progress" style="height: 10px;">
                     <div class="progress-bar" role="progressbar" style="width: ${usagePercent}%"></div>
                 </div>
                 <p class="text-muted mt-2 mb-0">
@@ -322,8 +324,8 @@ class FileManager {
     }
 }
 
-// Initialize when DOM is loaded
-let fileManager;
+// Initialize when DOM is loaded and expose to window for event handlers
+window.fileManager = null;
 document.addEventListener('DOMContentLoaded', () => {
-    fileManager = new FileManager();
+    window.fileManager = new FileManager();
 });
