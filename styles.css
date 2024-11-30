@@ -1,0 +1,257 @@
+:root {
+    --primary-color: #3ECF8E;
+    --secondary-color: #24B47E;
+    --dark-color: #1F1F1F;
+}
+
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    color: var(--primary-color) !important;
+    font-weight: bold;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-title {
+    color: var(--dark-color);
+    font-weight: bold;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.loading {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.file-upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.file-upload-area:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(62, 207, 142, 0.1);
+}
+
+.preview-image {
+    max-width: 200px;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.table-container {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.real-time-message {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    background: #f8f9fa;
+}
+
+.copy-button {
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    font-size: 0.8rem;
+}
+
+.copy-button:hover {
+    background: var(--secondary-color);
+}
+
+/* Upload Area Styles */
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: #f8f9fa;
+}
+
+.upload-area:hover, .upload-area.drag-over {
+    border-color: var(--primary-color);
+    background-color: rgba(62, 207, 142, 0.1);
+}
+
+.upload-content {
+    color: #666;
+}
+
+/* Image Preview Styles */
+.preview-image {
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 5px;
+}
+
+/* Upload Queue Styles */
+.upload-queue-item {
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.upload-filename {
+    font-weight: 500;
+}
+
+.upload-size {
+    font-size: 0.875rem;
+    margin-left: 5px;
+}
+
+/* Files List Styles */
+.files-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.file-item:hover {
+    background-color: #f8f9fa;
+}
+
+.file-icon {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-right: 15px;
+}
+
+.file-info {
+    flex-grow: 1;
+}
+
+.file-name {
+    margin: 0;
+    font-weight: 500;
+}
+
+.file-size {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.file-actions {
+    display: flex;
+    gap: 5px;
+}
+
+/* Uploads List Styles */
+.uploads-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.upload-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.upload-item:hover {
+    background-color: #f8f9fa;
+}
+
+.upload-thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 15px;
+}
+
+.upload-info {
+    flex-grow: 1;
+}
+
+.upload-name {
+    margin: 0;
+    font-weight: 500;
+}
+
+.upload-actions {
+    display: flex;
+    gap: 5px;
+}
+
+/* Toast Styles */
+.toast-container {
+    z-index: 1050;
+}
+
+/* Modal Styles */
+.modal-body pre {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Progress Bar Styles */
+.progress {
+    height: 4px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    background-color: var(--primary-color);
+    transition: width 0.2s ease;
+}

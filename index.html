@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Supabase Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Supabase Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="info.html">Project Info</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="articles.html">Articles</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="realtime.html">Real-time</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="images.html">Image Upload</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="files.html">File Manager</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Supabase Connection Information</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Project URL</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" value="https://tkcrnfgnspvtzwbbvyfv.supabase.co" readonly>
+                                        <button class="btn btn-outline-primary" onclick="copyToClipboard(this.previousElementSibling)">
+                                            Copy
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">API Key</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrY3JuZmduc3B2dHp3YmJ2eWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA5ODgwMTgsImV4cCI6MjA0NjU2NDAxOH0.o4kZY3X0XxcpM3OHO3yw7O3of2PPtXdQ4CBFgp3CMO8" readonly>
+                                        <button class="btn btn-outline-secondary" onclick="togglePassword(this.previousElementSibling)">
+                                            Show
+                                        </button>
+                                        <button class="btn btn-outline-primary" onclick="copyToClipboard(this.previousElementSibling.previousElementSibling)">
+                                            Copy
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Database Statistics</h5>
+                        <div id="dbStats">
+                            <p class="text-muted">Loading statistics...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Recent Activities</h5>
+                        <div id="recentActivities">
+                            <p class="text-muted">Loading activities...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        function copyToClipboard(element) {
+            element.select();
+            document.execCommand('copy');
+            
+            const button = element.nextElementSibling;
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => button.textContent = originalText, 2000);
+        }
+
+        function togglePassword(element) {
+            if (element.type === 'password') {
+                element.type = 'text';
+                element.nextElementSibling.textContent = 'Hide';
+            } else {
+                element.type = 'password';
+                element.nextElementSibling.textContent = 'Show';
+            }
+        }
+    </script>
+</body>
+</html>
