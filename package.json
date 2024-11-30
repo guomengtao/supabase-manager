@@ -3,11 +3,19 @@
   "version": "1.0.0",
   "description": "A comprehensive web application for managing and interacting with Supabase projects",
   "scripts": {
-    "build": "npm run optimize",
+    "start": "live-server --port=8080",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "format": "prettier --write \"**/*.{js,html,css,md}\"",
+    "build": "npm run lint && npm run test && npm run optimize",
     "optimize": "npm run optimize:js && npm run optimize:css",
     "optimize:js": "uglifyjs js/*.js -o js/main.min.js",
     "optimize:css": "cleancss -o styles.min.css styles.css",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "validate": "npm run lint && npm run test",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -26,7 +34,22 @@
   },
   "homepage": "https://github.com/guomengtao/supabase-manager#readme",
   "devDependencies": {
+    "@babel/core": "^7.23.5",
+    "@babel/preset-env": "^7.23.5",
+    "@testing-library/dom": "^9.3.3",
+    "@testing-library/jest-dom": "^6.1.5",
+    "babel-jest": "^29.7.0",
     "clean-css-cli": "^5.6.2",
+    "eslint": "^8.55.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jest": "^27.6.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "husky": "^8.0.3",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "lint-staged": "^15.2.0",
+    "live-server": "^1.2.2",
+    "prettier": "^3.1.0",
     "uglify-js": "^3.17.4"
   }
 }
