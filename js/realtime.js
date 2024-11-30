@@ -1,6 +1,6 @@
-class RealtimeManager {
-    constructor() {
-        this.supabase = supabase;
+export class RealtimeManager {
+    constructor(supabaseClient = supabase) {
+        this.supabase = supabaseClient;
         this.subscription = null;
         this.connected = false;
         this.setupEventListeners();
