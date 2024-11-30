@@ -33,6 +33,10 @@ jobs:
           source_dir: ./
           static_site_generator: ""
       
+      - name: Configure custom domain
+        run: |
+          echo "supabase-manager.rinuo.com" > CNAME
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
