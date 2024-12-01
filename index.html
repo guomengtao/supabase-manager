@@ -7,7 +7,7 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains">
-    <title>Dashboard - Supabase Manager</title>
+    <title>Supabase Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
@@ -22,13 +22,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" href="index.html">Dashboard</a>
+                        <a class="nav-link" href="articles.html">Articles</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutorial.html">Tutorial</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="info.html">Project Info</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="articles.html">Articles</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="realtime.html">Real-time</a>
@@ -44,62 +44,44 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="card mb-4">
+    <div class="container my-5">
+        <div class="text-center mb-5">
+            <h1>Welcome to Supabase Manager</h1>
+            <p class="lead">Manage your Supabase projects with ease</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title">Supabase Connection Information</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Project URL</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" value="https://tkcrnfgnspvtzwbbvyfv.supabase.co" readonly>
-                                        <button class="btn btn-outline-primary" onclick="copyToClipboard(this.previousElementSibling)">
-                                            Copy
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">API Key</label>
-                                    <div class="input-group">
-                                        <input type="password" class="form-control" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrY3JuZmduc3B2dHp3YmJ2eWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA5ODgwMTgsImV4cCI6MjA0NjU2NDAxOH0.o4kZY3X0XxcpM3OHO3yw7O3of2PPtXdQ4CBFgp3CMO8" readonly>
-                                        <button class="btn btn-outline-secondary" onclick="togglePassword(this.previousElementSibling)">
-                                            Show
-                                        </button>
-                                        <button class="btn btn-outline-primary" onclick="copyToClipboard(this.previousElementSibling.previousElementSibling)">
-                                            Copy
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <h5 class="card-title">📝 Articles</h5>
+                        <p class="card-text">Manage your articles with our easy-to-use interface. Create, edit, and delete articles stored in your Supabase database.</p>
+                        <a href="articles.html" class="btn btn-primary">Go to Articles</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">🎓 Tutorial</h5>
+                        <p class="card-text">New to Supabase? Check out our super easy tutorial on how to connect to Supabase and display articles!</p>
+                        <a href="tutorial.html" class="btn btn-success">Start Learning</a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-6">
+        <div class="row mt-5">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Database Statistics</h5>
-                        <div id="dbStats">
-                            <p class="text-muted">Loading statistics...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Recent Activities</h5>
-                        <div id="recentActivities">
-                            <p class="text-muted">Loading activities...</p>
-                        </div>
+                        <h5 class="card-title">🚀 Getting Started</h5>
+                        <p class="card-text">Follow these steps to get started with Supabase Manager:</p>
+                        <ol class="mb-0">
+                            <li>Check out our <a href="tutorial.html">beginner-friendly tutorial</a> to learn the basics</li>
+                            <li>Try managing articles in the <a href="articles.html">Articles section</a></li>
+                            <li>Explore more features as we add them!</li>
+                        </ol>
                     </div>
                 </div>
             </div>
