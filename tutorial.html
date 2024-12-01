@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Super Easy Supabase Tutorial</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .step {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .demo-box {
+            border: 2px solid #28a745;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Supabase Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="articles.html">Articles</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="tutorial.html">Tutorial</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h1 class="text-center mb-5">🎓 Super Easy Supabase Tutorial</h1>
+        <p class="lead text-center mb-5">Learn how to connect to Supabase and show articles in 5 easy steps!</p>
+
+        <div class="step">
+            <h3>Step 1: Get Your Supabase Keys 🔑</h3>
+            <p>Go to <a href="https://supabase.com" target="_blank">Supabase.com</a> and:</p>
+            <ol>
+                <li>Create a new project</li>
+                <li>Go to Project Settings → API</li>
+                <li>Copy these two values:
+                    <ul>
+                        <li>Project URL</li>
+                        <li>anon public key</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Create Your HTML File 📄</h3>
+            <p>Create a new file called <code>my-articles.html</code> and add this basic code:</p>
+            <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;My Articles&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;My Articles&lt;/h1&gt;
+    &lt;div id="articles"&gt;&lt;/div&gt;
+
+    &lt;!-- Load Supabase --&gt;
+    &lt;script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"&gt;&lt;/script&gt;
+    &lt;script src="my-articles.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Create Your JavaScript File 🛠️</h3>
+            <p>Create a new file called <code>my-articles.js</code> and add this code:</p>
+            <pre><code>// Replace with your Supabase URL and Key
+const SUPABASE_URL = 'your-project-url';
+const SUPABASE_KEY = 'your-anon-key';
+
+// Create Supabase client
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Function to load articles
+async function loadArticles() {
+    try {
+        // Get articles from Supabase
+        const { data: articles, error } = await supabase
+            .from('articles')
+            .select('*');
+
+        if (error) throw error;
+
+        // Show articles on the page
+        const articleDiv = document.getElementById('articles');
+        articleDiv.innerHTML = articles
+            .map(article => `
+                &lt;div style="margin: 20px 0; padding: 10px; border: 1px solid #ddd;"&gt;
+                    &lt;h2&gt;${article.title}&lt;/h2&gt;
+                    &lt;p&gt;${article.content}&lt;/p&gt;
+                &lt;/div&gt;
+            `)
+            .join('');
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Load articles when page loads
+loadArticles();</code></pre>
+        </div>
+
+        <div class="step">
+            <h3>Step 4: Create Table in Supabase 📋</h3>
+            <p>In your Supabase dashboard:</p>
+            <ol>
+                <li>Go to Table Editor</li>
+                <li>Click "New Table"</li>
+                <li>Name it "articles"</li>
+                <li>Add these columns:
+                    <ul>
+                        <li>id (type: uuid, is primary key)</li>
+                        <li>title (type: text)</li>
+                        <li>content (type: text)</li>
+                        <li>created_at (type: timestamptz, default: now())</li>
+                    </ul>
+                </li>
+                <li>Click "Save"</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>Step 5: Add Some Test Data 📝</h3>
+            <p>In Supabase Table Editor:</p>
+            <ol>
+                <li>Click "New Row"</li>
+                <li>Add a test article:
+                    <ul>
+                        <li>title: "My First Article"</li>
+                        <li>content: "Hello, Supabase!"</li>
+                    </ul>
+                </li>
+                <li>Click "Save"</li>
+            </ol>
+        </div>
+
+        <div class="demo-box">
+            <h3>🎉 Live Demo</h3>
+            <p>See it working right here:</p>
+            <div id="demo-articles"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Demo code
+        const supabase = supabase.createClient(
+            'https://tkcrnfgnspvtzwbbvyfv.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrY3JuZmduc3B2dHp3YmJ2eWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA5ODgwMTgsImV4cCI6MjA0NjU2NDAxOH0.o4kZY3X0XxcpM3OHO3yw7O3of2PPtXdQ4CBFgp3CMO8'
+        );
+
+        async function loadDemoArticles() {
+            try {
+                const { data: articles, error } = await supabase
+                    .from('articles')
+                    .select('*')
+                    .limit(3);
+
+                if (error) throw error;
+
+                const demoDiv = document.getElementById('demo-articles');
+                demoDiv.innerHTML = articles
+                    .map(article => `
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">${article.title}</h5>
+                                <p class="card-text">${article.content}</p>
+                            </div>
+                        </div>
+                    `)
+                    .join('');
+
+            } catch (error) {
+                console.error('Demo Error:', error);
+                document.getElementById('demo-articles').innerHTML = 
+                    '<div class="alert alert-danger">Error loading articles</div>';
+            }
+        }
+
+        loadDemoArticles();
+    </script>
+</body>
+</html>
