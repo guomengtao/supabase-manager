@@ -3,9 +3,9 @@ const SUPABASE_URL = 'https://tkcrnfgnspvtzwbbvyfv.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrY3JuZmduc3B2dHp3YmJ2eWZ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMDk4ODAxOCwiZXhwIjoyMDQ2NTY0MDE4fQ.q83fxtFeCVO4uhzYUnZzKjSwSQTkiFo62BFywe4B-ts';
 
 // Initialize Supabase client with retries and error handling
-let supabase;
+let supabaseClient;
 try {
-    supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 } catch (error) {
     console.error('Failed to initialize Supabase client:', error);
     // Show error message to user
@@ -13,7 +13,8 @@ try {
 }
 
 // Export the initialized client
-export { supabase, SUPABASE_URL, SUPABASE_KEY };
+export const supabase = supabaseClient;
+export { SUPABASE_URL, SUPABASE_KEY };
 
 // Storage bucket names
 const STORAGE_BUCKETS = {
@@ -21,7 +22,6 @@ const STORAGE_BUCKETS = {
     FILES: 'files'
 };
 
-// Export storage configuration
 export { STORAGE_BUCKETS };
 
 // File upload configurations

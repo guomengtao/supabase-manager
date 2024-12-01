@@ -30,7 +30,7 @@
   "author": "guomengtao",
   "license": "MIT",
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.3",
+    "@supabase/supabase-js": "^2.46.2",
     "bootstrap": "^5.3.0",
     "bootstrap-icons": "^1.7.2"
   },
@@ -47,7 +47,9 @@
   },
   "jest": {
     "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": ["<rootDir>/jest.setup.js"],
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ],
     "collectCoverageFrom": [
       "js/**/*.js",
       "!js/**/*.min.js"

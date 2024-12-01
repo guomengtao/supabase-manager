@@ -2,6 +2,13 @@ import { supabase } from './config.js';
 
 class ArticlesManager {
     constructor() {
+        // Wait for Supabase to be initialized
+        if (!supabase) {
+            console.error('Supabase client not initialized');
+            document.getElementById('errorMessage')?.textContent = 'Failed to connect to database. Please try again later.';
+            return;
+        }
+        
         this.supabase = supabase;
         this.loadArticles();
         this.setupEventListeners();
