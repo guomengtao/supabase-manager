@@ -1,3 +1,5 @@
+import { supabase } from './config.js';
+
 class ArticlesManager {
     constructor() {
         this.supabase = supabase;
@@ -7,11 +9,11 @@ class ArticlesManager {
 
     setupEventListeners() {
         // Reset form when modal is closed
-        document.getElementById('addArticleModal').addEventListener('hidden.bs.modal', () => {
+        document.getElementById('addArticleModal')?.addEventListener('hidden.bs.modal', () => {
             document.getElementById('articleForm').reset();
         });
 
-        document.getElementById('editArticleModal').addEventListener('hidden.bs.modal', () => {
+        document.getElementById('editArticleModal')?.addEventListener('hidden.bs.modal', () => {
             document.getElementById('editArticleForm').reset();
         });
     }
@@ -29,7 +31,7 @@ class ArticlesManager {
             this.updateArticlesTable(articles);
         } catch (error) {
             console.error('Error loading articles:', error);
-            this.showError('Failed to load articles');
+            document.getElementById('errorMessage').textContent = 'Error loading articles. Please try again later.';
         }
     }
 
@@ -88,7 +90,7 @@ class ArticlesManager {
                 .filter(tag => tag);
 
             if (!title || !content) {
-                this.showError('Title and content are required');
+                document.getElementById('errorMessage').textContent = 'Title and content are required';
                 return;
             }
 
@@ -112,11 +114,11 @@ class ArticlesManager {
             const modal = bootstrap.Modal.getInstance(document.getElementById('addArticleModal'));
             modal.hide();
             this.loadArticles();
-            this.showSuccess('Article added successfully');
+            document.getElementById('successMessage').textContent = 'Article added successfully';
 
         } catch (error) {
             console.error('Error adding article:', error);
-            this.showError('Failed to add article');
+            document.getElementById('errorMessage').textContent = 'Failed to add article';
         }
     }
 
@@ -143,7 +145,7 @@ class ArticlesManager {
 
         } catch (error) {
             console.error('Error loading article for edit:', error);
-            this.showError('Failed to load article');
+            document.getElementById('errorMessage').textContent = 'Failed to load article';
         }
     }
 
@@ -159,7 +161,7 @@ class ArticlesManager {
                 .filter(tag => tag);
 
             if (!title || !content) {
-                this.showError('Title and content are required');
+                document.getElementById('errorMessage').textContent = 'Title and content are required';
                 return;
             }
 
@@ -180,11 +182,11 @@ class ArticlesManager {
             const modal = bootstrap.Modal.getInstance(document.getElementById('editArticleModal'));
             modal.hide();
             this.loadArticles();
-            this.showSuccess('Article updated successfully');
+            document.getElementById('successMessage').textContent = 'Article updated successfully';
 
         } catch (error) {
             console.error('Error updating article:', error);
-            this.showError('Failed to update article');
+            document.getElementById('errorMessage').textContent = 'Failed to update article';
         }
     }
 
@@ -202,49 +204,12 @@ class ArticlesManager {
             if (error) throw error;
 
             this.loadArticles();
-            this.showSuccess('Article deleted successfully');
+            document.getElementById('successMessage').textContent = 'Article deleted successfully';
 
         } catch (error) {
             console.error('Error deleting article:', error);
-            this.showError('Failed to delete article');
+            document.getElementById('errorMessage').textContent = 'Failed to delete article';
         }
-    }
-
-    showError(message) {
-        this.showToast(message, 'danger');
-    }
-
-    showSuccess(message) {
-        this.showToast(message, 'success');
-    }
-
-    showToast(message, type) {
-        const toast = document.createElement('div');
-        toast.className = `toast align-items-center text-white bg-${type} border-0`;
-        toast.setAttribute('role', 'alert');
-        toast.setAttribute('aria-live', 'assertive');
-        toast.setAttribute('aria-atomic', 'true');
-        
-        toast.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">
-                    ${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        `;
-
-        const container = document.createElement('div');
-        container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-        container.appendChild(toast);
-        document.body.appendChild(container);
-
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-
-        toast.addEventListener('hidden.bs.toast', () => {
-            container.remove();
-        });
     }
 
     escapeHtml(unsafe) {

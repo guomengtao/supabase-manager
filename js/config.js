@@ -5,33 +5,24 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 // Initialize Supabase client with retries and error handling
 let supabase;
 try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-        auth: {
-            autoRefreshToken: true,
-            persistSession: true
-        },
-        global: {
-            headers: {
-                'X-Client-Info': 'supabase-manager',
-            },
-        },
-        realtime: {
-            params: {
-                eventsPerSecond: 10
-            }
-        }
-    });
+    supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 } catch (error) {
     console.error('Failed to initialize Supabase client:', error);
     // Show error message to user
     document.getElementById('errorMessage')?.textContent = 'Failed to connect to database. Please try again later.';
 }
 
+// Export the initialized client
+export { supabase, SUPABASE_URL, SUPABASE_KEY };
+
 // Storage bucket names
 const STORAGE_BUCKETS = {
     IMAGES: 'images',
     FILES: 'files'
 };
+
+// Export storage configuration
+export { STORAGE_BUCKETS };
 
 // File upload configurations
 const UPLOAD_CONFIG = {
@@ -70,5 +61,4 @@ const CONFIG = {
 };
 
 // Export the configuration and Supabase client
-window.appConfig = CONFIG;
-window.supabaseClient = supabase;
+export { CONFIG };
