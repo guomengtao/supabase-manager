@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Database Schema - Supabase Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">Supabase Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../examples/index.html">Examples</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Documentation</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h1>Database Schema Documentation</h1>
+        <p class="lead">Complete documentation of the database tables and their relationships.</p>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Articles Table</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Table Name: articles</h6>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Constraints</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>id</td>
+                                    <td>UUID</td>
+                                    <td>Unique identifier for the article</td>
+                                    <td>PRIMARY KEY, DEFAULT uuid_generate_v4()</td>
+                                </tr>
+                                <tr>
+                                    <td>title</td>
+                                    <td>text</td>
+                                    <td>Article title</td>
+                                    <td>NOT NULL</td>
+                                </tr>
+                                <tr>
+                                    <td>content</td>
+                                    <td>text</td>
+                                    <td>Article content</td>
+                                    <td>NOT NULL</td>
+                                </tr>
+                                <tr>
+                                    <td>tags</td>
+                                    <td>text[]</td>
+                                    <td>Array of tags associated with the article</td>
+                                    <td>DEFAULT '{}'::text[]</td>
+                                </tr>
+                                <tr>
+                                    <td>created_at</td>
+                                    <td>timestamp with time zone</td>
+                                    <td>When the article was created</td>
+                                    <td>DEFAULT now()</td>
+                                </tr>
+                                <tr>
+                                    <td>updated_at</td>
+                                    <td>timestamp with time zone</td>
+                                    <td>When the article was last updated</td>
+                                    <td>DEFAULT now()</td>
+                                </tr>
+                                <tr>
+                                    <td>is_deleted</td>
+                                    <td>boolean</td>
+                                    <td>Soft delete flag</td>
+                                    <td>DEFAULT false</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h6 class="mt-4">Creation SQL</h6>
+                        <pre><code>CREATE TABLE articles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    tags TEXT[] DEFAULT '{}'::text[],
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now(),
+    is_deleted BOOLEAN DEFAULT false
+);
+
+-- Create updated_at trigger
+CREATE TRIGGER set_updated_at
+    BEFORE UPDATE ON articles
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_set_updated_at();</code></pre>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Messages Table</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Table Name: messages</h6>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Constraints</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>id</td>
+                                    <td>UUID</td>
+                                    <td>Unique identifier for the message</td>
+                                    <td>PRIMARY KEY, DEFAULT uuid_generate_v4()</td>
+                                </tr>
+                                <tr>
+                                    <td>text</td>
+                                    <td>text</td>
+                                    <td>Message content</td>
+                                    <td>NOT NULL</td>
+                                </tr>
+                                <tr>
+                                    <td>user_id</td>
+                                    <td>text</td>
+                                    <td>ID of the user who sent the message</td>
+                                    <td>NOT NULL</td>
+                                </tr>
+                                <tr>
+                                    <td>created_at</td>
+                                    <td>timestamp with time zone</td>
+                                    <td>When the message was sent</td>
+                                    <td>DEFAULT now()</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h6 class="mt-4">Creation SQL</h6>
+                        <pre><code>CREATE TABLE messages (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    text TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT now()
+);</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
