@@ -91,14 +91,19 @@
                 <p>The tables will be created automatically when you first load the application. You can also create them manually using the SQL editor in your Supabase dashboard.</p>
             </div>
 
-            <form id="projectSetupForm" class="mt-4" onsubmit="return false;">
+            <form id="projectSetupForm" class="mt-4" onsubmit="return false;" autocomplete="off">
                 <div class="card">
                     <div class="card-body">
                         <h5>Project Configuration</h5>
                         <div class="mb-3">
                             <label for="projectUrl" class="form-label">Project URL:</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="projectUrl" value="https://example.supabase.co" readonly>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="projectUrl" 
+                                       value="https://example.supabase.co" 
+                                       readonly
+                                       autocomplete="off">
                                 <button class="btn btn-outline-secondary" type="button" onclick="tutorial.copyToClipboard('projectUrl')">
                                     Copy
                                 </button>
@@ -107,7 +112,13 @@
                         <div class="mb-3">
                             <label for="apiKey" class="form-label">API Key:</label>
                             <div class="input-group">
-                                <input type="password" class="form-control" id="apiKey" value="your-api-key" readonly>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="apiKey" 
+                                       value="your-api-key" 
+                                       readonly
+                                       autocomplete="off"
+                                       aria-label="API Key">
                                 <button class="btn btn-outline-secondary" type="button" onclick="tutorial.togglePassword('apiKey')">
                                     Show
                                 </button>
@@ -115,6 +126,7 @@
                                     Copy
                                 </button>
                             </div>
+                            <small class="text-muted">This is a read-only demo field</small>
                         </div>
                     </div>
                 </div>

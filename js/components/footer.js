@@ -188,15 +188,26 @@ export class Footer {
     }
 
     async loadGitHubInfo() {
+        const CACHE_KEY = 'github_stats';
+        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
         try {
+            // Check cache first
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const { data, timestamp } = JSON.parse(cached);
+                if (Date.now() - timestamp < CACHE_DURATION) {
+                    this.updateGitHubStats(data);
+                    return;
+                }
+            }
+
             // Add delay to avoid rate limiting
             await new Promise(resolve => setTimeout(resolve, 1000));
             
             const response = await fetch('https://api.github.com/repos/guomengtao/supabase-manager', {
                 headers: {
-                    'Accept': 'application/vnd.github.v3+json',
-                    // Add cache control to help with rate limiting
-                    'Cache-Control': 'max-age=300'
+                    'Accept': 'application/vnd.github.v3+json'
                 }
             });
 
@@ -209,28 +220,43 @@ export class Footer {
             }
 
             const data = await response.json();
-            const githubInfo = document.getElementById('githubInfo');
-            if (githubInfo && data) {
-                githubInfo.innerHTML = `
-                    <small class="d-block text-muted">GitHub Stats:</small>
-                    <small class="d-block">⭐ ${data.stargazers_count} stars</small>
-                    <small class="d-block">🔄 ${data.forks_count} forks</small>
-                    <small class="d-block">👁️ ${data.watchers_count} watchers</small>
-                    <small class="d-block text-muted mt-2">Last updated: ${new Date().toLocaleString()}</small>
-                `;
-            }
+            
+            // Cache the response
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+                data,
+                timestamp: Date.now()
+            }));
+
+            this.updateGitHubStats(data);
         } catch (error) {
             console.warn('GitHub info loading:', error.message);
-            const githubInfo = document.getElementById('githubInfo');
-            if (githubInfo) {
-                githubInfo.innerHTML = `
-                    <small class="text-muted">
-                        GitHub stats temporarily unavailable<br>
-                        <a href="https://github.com/guomengtao/supabase-manager" 
-                           target="_blank" class="text-muted">View on GitHub</a>
-                    </small>
-                `;
-            }
+            this.showGitHubError();
+        }
+    }
+
+    updateGitHubStats(data) {
+        const githubInfo = document.getElementById('githubInfo');
+        if (githubInfo && data) {
+            githubInfo.innerHTML = `
+                <small class="d-block text-muted">GitHub Stats:</small>
+                <small class="d-block">⭐ ${data.stargazers_count} stars</small>
+                <small class="d-block">🔄 ${data.forks_count} forks</small>
+                <small class="d-block">👁️ ${data.watchers_count} watchers</small>
+                <small class="d-block text-muted mt-2">Last updated: ${new Date().toLocaleString()}</small>
+            `;
+        }
+    }
+
+    showGitHubError() {
+        const githubInfo = document.getElementById('githubInfo');
+        if (githubInfo) {
+            githubInfo.innerHTML = `
+                <small class="text-muted">
+                    GitHub stats temporarily unavailable<br>
+                    <a href="https://github.com/guomengtao/supabase-manager" 
+                       target="_blank" class="text-muted">View on GitHub</a>
+                </small>
+            `;
         }
     }
 
