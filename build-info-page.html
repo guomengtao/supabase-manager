@@ -77,38 +77,48 @@
 
         <div class="tutorial-step">
             <h2><span class="step-number">1</span> Project Setup</h2>
-            <p>First, let's set up the basic HTML structure and include necessary dependencies:</p>
-            <pre><code class="language-html"><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Info - Supabase Manager</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <!-- Navigation content -->
-    </nav>
-
-    <div class="container mt-4">
-        <h1>Project Information</h1>
-        <!-- Content will go here -->
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="js/info.js"></script>
-</body>
-</html></code></pre>
-            <div class="mt-3">
-                <button class="btn btn-primary" onclick="tutorial.showLiveDemo('step1')">View Live Demo</button>
-                <div id="step1Demo" class="live-demo" style="display: none;">
-                    <!-- Step 1 demo content -->
-                </div>
+            <p>First, let's set up our Supabase project and required tables:</p>
+            
+            <div class="alert alert-info">
+                <h5>Required Tables Setup</h5>
+                <p>Make sure you have the following tables in your Supabase project:</p>
+                <ul>
+                    <li><code>users</code> - For user management</li>
+                    <li><code>files</code> - For file storage</li>
+                    <li><code>images</code> - For image management</li>
+                    <li><code>articles</code> - For article content</li>
+                </ul>
+                <p>The tables will be created automatically when you first load the application. You can also create them manually using the SQL editor in your Supabase dashboard.</p>
             </div>
+
+            <form id="projectSetupForm" class="mt-4" onsubmit="return false;">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Project Configuration</h5>
+                        <div class="mb-3">
+                            <label for="projectUrl" class="form-label">Project URL:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="projectUrl" value="https://example.supabase.co" readonly>
+                                <button class="btn btn-outline-secondary" type="button" onclick="tutorial.copyToClipboard('projectUrl')">
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="apiKey" class="form-label">API Key:</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="apiKey" value="your-api-key" readonly>
+                                <button class="btn btn-outline-secondary" type="button" onclick="tutorial.togglePassword('apiKey')">
+                                    Show
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="tutorial.copyToClipboard('apiKey')">
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
 
         <div class="tutorial-step">

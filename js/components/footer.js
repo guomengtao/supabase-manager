@@ -189,9 +189,26 @@ export class Footer {
 
     async loadGitHubInfo() {
         try {
-            const response = await fetch('https://api.github.com/repos/guomengtao/supabase-manager');
-            const data = await response.json();
+            // Add delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const response = await fetch('https://api.github.com/repos/guomengtao/supabase-manager', {
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    // Add cache control to help with rate limiting
+                    'Cache-Control': 'max-age=300'
+                }
+            });
 
+            if (response.status === 403) {
+                throw new Error('GitHub API rate limit exceeded');
+            }
+
+            if (!response.ok) {
+                throw new Error(`GitHub API error: ${response.status}`);
+            }
+
+            const data = await response.json();
             const githubInfo = document.getElementById('githubInfo');
             if (githubInfo && data) {
                 githubInfo.innerHTML = `
@@ -203,11 +220,15 @@ export class Footer {
                 `;
             }
         } catch (error) {
-            console.error('Error loading GitHub info:', error);
+            console.warn('GitHub info loading:', error.message);
             const githubInfo = document.getElementById('githubInfo');
             if (githubInfo) {
                 githubInfo.innerHTML = `
-                    <small class="text-muted">GitHub stats temporarily unavailable</small>
+                    <small class="text-muted">
+                        GitHub stats temporarily unavailable<br>
+                        <a href="https://github.com/guomengtao/supabase-manager" 
+                           target="_blank" class="text-muted">View on GitHub</a>
+                    </small>
                 `;
             }
         }
