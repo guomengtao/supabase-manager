@@ -1,25 +1,50 @@
+// Wait for Supabase to be available
+function waitForSupabase(maxAttempts = 10) {
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        
+        const check = () => {
+            attempts++;
+            if (window.supabase) {
+                resolve(window.supabase);
+            } else if (attempts >= maxAttempts) {
+                reject(new Error('Supabase failed to load'));
+            } else {
+                setTimeout(check, 100);
+            }
+        };
+        
+        check();
+    });
+}
+
 // Supabase configuration
 const CONFIG = {
     supabaseUrl: 'https://tkcrnfgnspvtzwbbvyfv.supabase.co',
-    // Replace with your actual anon key from your Supabase project settings
     supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrY3JuZmduc3B2dHp3YmJ2eWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA5ODgwMTgsImV4cCI6MjA0NjU2NDAxOH0.o4kZY3X0XxcpM3OHO3yw7O3of2PPtXdQ4CBFgp3CMO8'
 };
 
-// Initialize Supabase client using the global supabase object from CDN
-let supabase = null;
+// Initialize Supabase client
+let supabaseClient = null;
 
-try {
-    if (!window.supabase) {
-        throw new Error('Supabase library not loaded');
+async function initializeSupabase() {
+    if (!CONFIG.supabaseUrl || !CONFIG.supabaseKey) {
+        throw new Error('Supabase configuration is missing. Please check config.js');
     }
-    supabase = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
-} catch (error) {
-    console.error('Failed to initialize Supabase client:', error);
-    // Show error in UI if available
-    const errorElement = document.getElementById('errorMessage');
-    if (errorElement) {
-        errorElement.textContent = 'Failed to connect to database. Please refresh the page.';
-        errorElement.classList.remove('d-none');
+
+    try {
+        const supabaseLib = await waitForSupabase();
+        supabaseClient = supabaseLib.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
+        console.log('Supabase client initialized successfully');
+        return supabaseClient;
+    } catch (error) {
+        console.error('Failed to initialize Supabase client:', error);
+        const errorElement = document.getElementById('errorMessage');
+        if (errorElement) {
+            errorElement.textContent = 'Failed to connect to database. Please refresh the page.';
+            errorElement.classList.remove('d-none');
+        }
+        throw error;
     }
 }
 
@@ -63,17 +88,16 @@ const REQUIRED_TABLES = {
     `
 };
 
-// Initialize tables function with better error handling
+// Initialize tables function
 async function initializeTables() {
-    if (!supabase) {
-        console.error('Supabase client not initialized');
-        return;
+    if (!supabaseClient) {
+        supabaseClient = await initializeSupabase();
     }
 
     try {
         for (const [tableName, createSQL] of Object.entries(REQUIRED_TABLES)) {
             try {
-                const { error } = await supabase.rpc('create_table_if_not_exists', {
+                const { error } = await supabaseClient.rpc('create_table_if_not_exists', {
                     table_sql: createSQL
                 });
                 
@@ -82,7 +106,6 @@ async function initializeTables() {
                         console.log(`Table ${tableName} already exists`);
                     } else {
                         console.error(`Error creating table ${tableName}:`, error);
-                        // Show error in UI if available
                         const errorElement = document.getElementById('errorMessage');
                         if (errorElement) {
                             errorElement.textContent = `Error creating table ${tableName}. Some features may not work.`;
@@ -96,7 +119,6 @@ async function initializeTables() {
         }
     } catch (err) {
         console.error('Error initializing tables:', err);
-        // Show error in UI if available
         const errorElement = document.getElementById('errorMessage');
         if (errorElement) {
             errorElement.textContent = 'Error setting up database tables. Some features may not work.';
@@ -105,8 +127,8 @@ async function initializeTables() {
     }
 }
 
+// Initialize Supabase when the module loads
+const supabase = await initializeSupabase();
+
 // Export configuration and utilities
 export { CONFIG, supabase, initializeTables, REQUIRED_TABLES };
-
-// Initialize tables when the page loads
-window.addEventListener('load', initializeTables);

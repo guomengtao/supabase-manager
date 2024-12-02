@@ -1,41 +1,47 @@
-import { supabase } from './config.js';
+import { supabase, initializeTables } from './config.js';
 import { showToast } from './utils.js';
 
 export class ArticlesManager {
     constructor() {
-        this.articlesList = document.getElementById('articlesList');
-        if (!this.articlesList) {
-            console.error('Articles list element not found');
-            return;
-        }
+        this.articlesListElement = document.getElementById('articlesList');
+        this.errorElement = document.getElementById('errorMessage');
+        this.initialize();
+    }
 
-        if (!supabase) {
-            console.error('Supabase client not initialized');
-            this.showError('Database connection failed. Please refresh the page.');
-            return;
+    async initialize() {
+        try {
+            // Wait for tables to be initialized
+            await initializeTables();
+            
+            // Load articles
+            await this.loadArticles();
+        } catch (error) {
+            console.error('Failed to initialize ArticlesManager:', error);
+            this.showError('Failed to initialize articles. Please refresh the page.');
         }
     }
 
     showError(message) {
-        if (this.articlesList) {
-            this.articlesList.innerHTML = `
-                <div class="alert alert-danger" role="alert">
-                    ${this.escapeHtml(message)}
-                </div>
-            `;
+        console.error(message);
+        if (this.errorElement) {
+            this.errorElement.textContent = message;
+            this.errorElement.classList.remove('d-none');
         }
-        showToast(message, 'danger');
+        showToast(message, 'error');
     }
 
     async loadArticles() {
-        if (!this.articlesList) return;
-        
-        try {
-            this.articlesList.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div></div>';
+        if (!this.articlesListElement) return;
 
-            if (!supabase) {
-                throw new Error('Database connection not available');
-            }
+        try {
+            // Show loading state
+            this.articlesListElement.innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `;
 
             const { data: articles, error } = await supabase
                 .from('articles')
@@ -44,30 +50,51 @@ export class ArticlesManager {
 
             if (error) throw error;
 
-            if (!articles || articles.length === 0) {
-                this.articlesList.innerHTML = `
-                    <div class="alert alert-info" role="alert">
-                        No articles found. Create your first article!
-                    </div>
-                `;
-                return;
-            }
-
-            this.articlesList.innerHTML = articles.map(article => `
-                <div class="list-group-item">
-                    <h5 class="mb-1">${this.escapeHtml(article.title)}</h5>
-                    <p class="mb-1">${this.escapeHtml(article.content)}</p>
-                    <small class="text-muted">Created: ${new Date(article.created_at).toLocaleString()}</small>
-                    <button class="btn btn-danger btn-sm float-end" onclick="window.articlesManager.deleteArticle('${article.id}')">
-                        Delete
-                    </button>
-                </div>
-            `).join('');
-
+            this.renderArticles(articles || []);
         } catch (error) {
             console.error('Error loading articles:', error);
-            this.showError(error.message || 'Error loading articles');
+            this.showError('Failed to load articles. Please try again later.');
+            
+            if (this.articlesListElement) {
+                this.articlesListElement.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        Failed to load articles. Please try again later.
+                    </div>
+                `;
+            }
         }
+    }
+
+    renderArticles(articles) {
+        if (!this.articlesListElement) return;
+
+        if (!articles || articles.length === 0) {
+            this.articlesListElement.innerHTML = `
+                <div class="text-center text-muted">
+                    <p>No articles found. Create your first article!</p>
+                </div>
+            `;
+            return;
+        }
+
+        this.articlesListElement.innerHTML = articles.map(article => `
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${this.escapeHtml(article.title)}</h5>
+                    <small class="text-muted">
+                        ${new Date(article.created_at).toLocaleDateString()}
+                    </small>
+                </div>
+                <p class="mb-1">${this.escapeHtml(article.content)}</p>
+                <button 
+                    class="btn btn-danger btn-sm mt-2"
+                    onclick="window.articlesManager.deleteArticle('${article.id}')"
+                >
+                    Delete
+                </button>
+            </div>
+        `).join('');
     }
 
     async createArticle() {
@@ -78,34 +105,29 @@ export class ArticlesManager {
             this.showError('Form elements not found');
             return;
         }
-
+        
         const title = titleInput.value.trim();
         const content = contentInput.value.trim();
-
+        
         if (!title || !content) {
             showToast('Please fill in all fields', 'warning');
             return;
         }
 
         try {
-            if (!supabase) {
-                throw new Error('Database connection not available');
-            }
-
             const { error } = await supabase
                 .from('articles')
                 .insert([{ title, content }]);
 
             if (error) throw error;
 
-            showToast('Article created successfully');
+            showToast('Article created successfully', 'success');
             titleInput.value = '';
             contentInput.value = '';
             await this.loadArticles();
-
         } catch (error) {
             console.error('Error creating article:', error);
-            this.showError(error.message || 'Error creating article');
+            this.showError('Failed to create article');
         }
     }
 
@@ -115,15 +137,7 @@ export class ArticlesManager {
             return;
         }
 
-        if (!confirm('Are you sure you want to delete this article?')) {
-            return;
-        }
-
         try {
-            if (!supabase) {
-                throw new Error('Database connection not available');
-            }
-
             const { error } = await supabase
                 .from('articles')
                 .delete()
@@ -131,12 +145,11 @@ export class ArticlesManager {
 
             if (error) throw error;
 
-            showToast('Article deleted successfully');
+            showToast('Article deleted successfully', 'success');
             await this.loadArticles();
-
         } catch (error) {
             console.error('Error deleting article:', error);
-            this.showError(error.message || 'Error deleting article');
+            this.showError('Failed to delete article');
         }
     }
 
@@ -154,5 +167,4 @@ export class ArticlesManager {
 let articlesManager;
 document.addEventListener('DOMContentLoaded', () => {
     articlesManager = new ArticlesManager();
-    articlesManager.loadArticles();
 });
