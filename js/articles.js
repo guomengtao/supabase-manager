@@ -1,203 +1,70 @@
 import { supabase } from './config.js';
+import { showToast } from './utils.js';
 
-class ArticlesManager {
+export class ArticlesManager {
     constructor() {
-        // Check if Supabase is initialized
-        if (!supabase) {
-            console.error('Supabase client not initialized');
-            const errorElement = document.getElementById('errorMessage');
-            if (errorElement) {
-                errorElement.textContent = 'Database connection failed. Please refresh the page.';
-                errorElement.classList.remove('d-none');
-            }
-            return;
-        }
-
-        this.supabase = supabase;
-        this.loadArticles();
-        this.setupEventListeners();
-    }
-
-    setupEventListeners() {
-        // Reset form when modal is closed
-        document.getElementById('addArticleModal')?.addEventListener('hidden.bs.modal', () => {
-            document.getElementById('articleForm').reset();
-        });
-
-        document.getElementById('editArticleModal')?.addEventListener('hidden.bs.modal', () => {
-            document.getElementById('editArticleForm').reset();
-        });
+        this.articlesList = document.getElementById('articlesList');
     }
 
     async loadArticles() {
         try {
-            const { data: articles, error } = await this.supabase
+            const { data: articles, error } = await supabase
                 .from('articles')
                 .select('*')
-                .eq('is_deleted', false)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
 
-            this.updateArticlesTable(articles);
+            if (articles.length === 0) {
+                this.articlesList.innerHTML = '<div class="list-group-item">No articles found</div>';
+                return;
+            }
+
+            this.articlesList.innerHTML = articles.map(article => `
+                <div class="list-group-item">
+                    <h5 class="mb-1">${this.escapeHtml(article.title)}</h5>
+                    <p class="mb-1">${this.escapeHtml(article.content)}</p>
+                    <small class="text-muted">Created: ${new Date(article.created_at).toLocaleString()}</small>
+                    <button class="btn btn-danger btn-sm float-end" onclick="window.articlesManager.deleteArticle('${article.id}')">
+                        Delete
+                    </button>
+                </div>
+            `).join('');
+
         } catch (error) {
             console.error('Error loading articles:', error);
-            document.getElementById('errorMessage').textContent = 'Error loading articles. Please try again later.';
+            showToast('Error loading articles', 'danger');
+            this.articlesList.innerHTML = '<div class="list-group-item text-danger">Error loading articles</div>';
         }
     }
 
-    updateArticlesTable(articles) {
-        const tableBody = document.getElementById('articlesTableBody');
+    async createArticle() {
+        const titleInput = document.getElementById('articleTitle');
+        const contentInput = document.getElementById('articleContent');
         
-        if (!articles || articles.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center">No articles found</td>
-                </tr>
-            `;
+        const title = titleInput.value.trim();
+        const content = contentInput.value.trim();
+
+        if (!title || !content) {
+            showToast('Please fill in all fields', 'warning');
             return;
         }
 
-        tableBody.innerHTML = articles.map(article => `
-            <tr>
-                <td>${this.escapeHtml(article.title)}</td>
-                <td>${this.formatTags(article.tags)}</td>
-                <td>
-                    ${article.url ? 
-                        `<a href="${this.escapeHtml(article.url)}" target="_blank" rel="noopener noreferrer">
-                            ${this.escapeHtml(article.url)}
-                         </a>` : 
-                        '-'}
-                </td>
-                <td>${new Date(article.created_at).toLocaleString()}</td>
-                <td>${new Date(article.updated_at || article.created_at).toLocaleString()}</td>
-                <td>
-                    <button class="btn btn-sm btn-primary me-2" onclick="articlesManager.editArticle('${article.id}')">
-                        Edit
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="articlesManager.deleteArticle('${article.id}')">
-                        Delete
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    formatTags(tags) {
-        if (!tags || tags.length === 0) return '-';
-        return tags.map(tag => `
-            <span class="badge bg-secondary me-1">${this.escapeHtml(tag)}</span>
-        `).join('');
-    }
-
-    async addArticle() {
         try {
-            const title = document.getElementById('title').value;
-            const content = document.getElementById('content').value;
-            const url = document.getElementById('url').value;
-            const tags = document.getElementById('tags').value
-                .split(',')
-                .map(tag => tag.trim())
-                .filter(tag => tag);
-
-            if (!title || !content) {
-                document.getElementById('errorMessage').textContent = 'Title and content are required';
-                return;
-            }
-
-            const { data, error } = await this.supabase
+            const { error } = await supabase
                 .from('articles')
-                .insert([
-                    {
-                        title,
-                        content,
-                        url: url || null,
-                        tags,
-                        is_deleted: false,
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    }
-                ]);
+                .insert([{ title, content }]);
 
             if (error) throw error;
 
-            // Close modal and reload articles
-            const modal = bootstrap.Modal.getInstance(document.getElementById('addArticleModal'));
-            modal.hide();
-            this.loadArticles();
-            document.getElementById('successMessage').textContent = 'Article added successfully';
+            showToast('Article created successfully');
+            titleInput.value = '';
+            contentInput.value = '';
+            await this.loadArticles();
 
         } catch (error) {
-            console.error('Error adding article:', error);
-            document.getElementById('errorMessage').textContent = 'Failed to add article';
-        }
-    }
-
-    async editArticle(id) {
-        try {
-            const { data: article, error } = await this.supabase
-                .from('articles')
-                .select('*')
-                .eq('id', id)
-                .single();
-
-            if (error) throw error;
-
-            // Populate form
-            document.getElementById('editArticleId').value = article.id;
-            document.getElementById('editTitle').value = article.title;
-            document.getElementById('editContent').value = article.content;
-            document.getElementById('editUrl').value = article.url || '';
-            document.getElementById('editTags').value = article.tags ? article.tags.join(', ') : '';
-
-            // Show modal
-            const modal = new bootstrap.Modal(document.getElementById('editArticleModal'));
-            modal.show();
-
-        } catch (error) {
-            console.error('Error loading article for edit:', error);
-            document.getElementById('errorMessage').textContent = 'Failed to load article';
-        }
-    }
-
-    async updateArticle() {
-        try {
-            const id = document.getElementById('editArticleId').value;
-            const title = document.getElementById('editTitle').value;
-            const content = document.getElementById('editContent').value;
-            const url = document.getElementById('editUrl').value;
-            const tags = document.getElementById('editTags').value
-                .split(',')
-                .map(tag => tag.trim())
-                .filter(tag => tag);
-
-            if (!title || !content) {
-                document.getElementById('errorMessage').textContent = 'Title and content are required';
-                return;
-            }
-
-            const { data, error } = await this.supabase
-                .from('articles')
-                .update({
-                    title,
-                    content,
-                    url: url || null,
-                    tags,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', id);
-
-            if (error) throw error;
-
-            // Close modal and reload articles
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editArticleModal'));
-            modal.hide();
-            this.loadArticles();
-            document.getElementById('successMessage').textContent = 'Article updated successfully';
-
-        } catch (error) {
-            console.error('Error updating article:', error);
-            document.getElementById('errorMessage').textContent = 'Failed to update article';
+            console.error('Error creating article:', error);
+            showToast('Error creating article', 'danger');
         }
     }
 
@@ -207,19 +74,19 @@ class ArticlesManager {
         }
 
         try {
-            const { error } = await this.supabase
+            const { error } = await supabase
                 .from('articles')
-                .update({ is_deleted: true })
+                .delete()
                 .eq('id', id);
 
             if (error) throw error;
 
-            this.loadArticles();
-            document.getElementById('successMessage').textContent = 'Article deleted successfully';
+            showToast('Article deleted successfully');
+            await this.loadArticles();
 
         } catch (error) {
             console.error('Error deleting article:', error);
-            document.getElementById('errorMessage').textContent = 'Failed to delete article';
+            showToast('Error deleting article', 'danger');
         }
     }
 
@@ -237,4 +104,5 @@ class ArticlesManager {
 let articlesManager;
 document.addEventListener('DOMContentLoaded', () => {
     articlesManager = new ArticlesManager();
+    articlesManager.loadArticles();
 });
