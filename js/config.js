@@ -50,42 +50,46 @@ async function initializeSupabase() {
 
 // Required tables definition
 const REQUIRED_TABLES = {
-    users: `
-        create table if not exists users (
-            id uuid not null primary key,
-            created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-            email text,
-            name text
-        )
-    `,
-    files: `
-        create table if not exists files (
-            id uuid not null primary key,
-            created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-            name text,
-            size bigint,
-            type text,
-            path text
-        )
-    `,
-    images: `
-        create table if not exists images (
-            id uuid not null primary key,
-            created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-            name text,
-            url text,
-            size bigint,
-            type text
-        )
-    `,
-    articles: `
-        create table if not exists articles (
-            id uuid not null primary key,
-            created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-            title text,
-            content text
-        )
-    `
+    users: {
+        name: 'users',
+        columns: [
+            { name: 'id', type: 'uuid', primary: true },
+            { name: 'created_at', type: 'timestamp with time zone', default: "timezone('utc'::text, now())" },
+            { name: 'email', type: 'text' },
+            { name: 'name', type: 'text' }
+        ]
+    },
+    files: {
+        name: 'files',
+        columns: [
+            { name: 'id', type: 'uuid', primary: true },
+            { name: 'created_at', type: 'timestamp with time zone', default: "timezone('utc'::text, now())" },
+            { name: 'name', type: 'text' },
+            { name: 'size', type: 'bigint' },
+            { name: 'type', type: 'text' },
+            { name: 'path', type: 'text' }
+        ]
+    },
+    images: {
+        name: 'images',
+        columns: [
+            { name: 'id', type: 'uuid', primary: true },
+            { name: 'created_at', type: 'timestamp with time zone', default: "timezone('utc'::text, now())" },
+            { name: 'name', type: 'text' },
+            { name: 'url', type: 'text' },
+            { name: 'size', type: 'bigint' },
+            { name: 'type', type: 'text' }
+        ]
+    },
+    articles: {
+        name: 'articles',
+        columns: [
+            { name: 'id', type: 'uuid', primary: true },
+            { name: 'created_at', type: 'timestamp with time zone', default: "timezone('utc'::text, now())" },
+            { name: 'title', type: 'text' },
+            { name: 'content', type: 'text' }
+        ]
+    }
 };
 
 // Initialize tables function
@@ -95,26 +99,41 @@ async function initializeTables() {
     }
 
     try {
-        for (const [tableName, createSQL] of Object.entries(REQUIRED_TABLES)) {
+        for (const [tableName, tableInfo] of Object.entries(REQUIRED_TABLES)) {
             try {
-                const { error } = await supabaseClient.rpc('create_table_if_not_exists', {
-                    table_sql: createSQL
-                });
-                
-                if (error) {
-                    if (error.message.includes('already exists')) {
-                        console.log(`Table ${tableName} already exists`);
+                // Check if table exists
+                const { data: existingTable, error: checkError } = await supabaseClient
+                    .from(tableInfo.name)
+                    .select('id')
+                    .limit(1);
+
+                if (checkError && checkError.code === '42P01') {
+                    // Table doesn't exist, create it
+                    const columns = tableInfo.columns.map(col => {
+                        let colDef = `${col.name} ${col.type}`;
+                        if (col.primary) colDef += ' primary key';
+                        if (col.default) colDef += ` default ${col.default}`;
+                        if (!col.nullable) colDef += ' not null';
+                        return colDef;
+                    }).join(', ');
+
+                    const createTableSQL = `
+                        create table if not exists ${tableInfo.name} (
+                            ${columns}
+                        )
+                    `;
+
+                    const { error: createError } = await supabaseClient.rpc('exec_sql', { sql: createTableSQL });
+                    if (createError) {
+                        console.error(`Error creating table ${tableName}:`, createError);
                     } else {
-                        console.error(`Error creating table ${tableName}:`, error);
-                        const errorElement = document.getElementById('errorMessage');
-                        if (errorElement) {
-                            errorElement.textContent = `Error creating table ${tableName}. Some features may not work.`;
-                            errorElement.classList.remove('d-none');
-                        }
+                        console.log(`Table ${tableName} created successfully`);
                     }
+                } else {
+                    console.log(`Table ${tableName} already exists`);
                 }
             } catch (tableError) {
-                console.error(`Failed to create table ${tableName}:`, tableError);
+                console.error(`Failed to check/create table ${tableName}:`, tableError);
             }
         }
     } catch (err) {
