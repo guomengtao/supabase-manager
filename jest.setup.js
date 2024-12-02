@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+require('@testing-library/jest-dom');
 
 // Mock Supabase client
 global.supabase = {
@@ -14,6 +14,14 @@ global.supabase = {
         rpc: jest.fn().mockResolvedValue({ data: null, error: null })
     }))
 };
+
+// Mock window.fetch
+global.fetch = jest.fn(() =>
+    Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({}),
+    })
+);
 
 // Mock DOM elements
 document.body.innerHTML = `
