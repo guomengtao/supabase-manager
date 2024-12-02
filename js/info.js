@@ -1,16 +1,32 @@
+import { supabase } from './config.js';
+
 class ProjectInfo {
     constructor() {
+        if (!supabase) {
+            console.error('Supabase client not initialized');
+            this.showError('Database connection failed. Please refresh the page.');
+            return;
+        }
+
         this.supabase = supabase;
         this.loadProjectInfo();
         this.loadTableInfo();
+        this.setupRefreshButton();
+    }
+
+    showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger';
+        errorDiv.textContent = message;
+        document.querySelector('.container').insertBefore(errorDiv, document.querySelector('.row'));
     }
 
     async loadProjectInfo() {
         const projectUrl = document.getElementById('projectUrl');
         const apiKey = document.getElementById('apiKey');
         
-        projectUrl.value = SUPABASE_URL;
-        apiKey.value = SUPABASE_ANON_KEY;
+        if (projectUrl) projectUrl.value = this.supabase.supabaseUrl;
+        if (apiKey) apiKey.value = this.supabase.supabaseKey;
     }
 
     async loadTableInfo() {
@@ -18,122 +34,167 @@ class ProjectInfo {
             const tablesInfo = document.getElementById('tablesInfo');
             const dbStats = document.getElementById('dbStats');
 
-            // Get tables information using Supabase's built-in schema query
+            // Get tables information
             const { data: tables, error } = await this.supabase
                 .from('information_schema.tables')
-                .select('*')
+                .select('table_name, table_schema')
                 .eq('table_schema', 'public');
 
             if (error) throw error;
 
-            // Get columns information for each table
-            const tableDetails = await Promise.all(tables.map(async (table) => {
-                const { data: columns, error: columnError } = await this.supabase
-                    .from('information_schema.columns')
-                    .select('*')
-                    .eq('table_schema', 'public')
-                    .eq('table_name', table.table_name);
+            // Get row counts for each table
+            const tableStats = await Promise.all(
+                tables.map(async (table) => {
+                    const { count, error: countError } = await this.supabase
+                        .from(table.table_name)
+                        .select('*', { count: 'exact', head: true });
+                    
+                    return {
+                        name: table.table_name,
+                        count: countError ? '?' : count
+                    };
+                })
+            );
 
-                if (columnError) throw columnError;
-                return { table, columns };
-            }));
+            // Display database statistics
+            if (dbStats) {
+                dbStats.innerHTML = `
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <span>Total Tables:</span>
+                                <strong>${tables.length}</strong>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <span>Total Records:</span>
+                                <strong>${tableStats.reduce((sum, table) => sum + (typeof table.count === 'number' ? table.count : 0), 0)}</strong>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <span>Status:</span>
+                                <strong class="text-success">Connected</strong>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
 
-            // Update UI with tables information
-            this.updateTablesUI(tableDetails);
-            this.updateStatsUI(tableDetails);
+            // Display tables information
+            if (tablesInfo) {
+                tablesInfo.innerHTML = `
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Table Name</th>
+                                <th>Record Count</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableStats.map(table => `
+                                <tr>
+                                    <td>${this.escapeHtml(table.name)}</td>
+                                    <td>${table.count}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="projectInfo.viewTable('${table.name}')">
+                                            View Data
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
 
         } catch (error) {
             console.error('Error loading table information:', error);
-            this.showError('Failed to load table information');
+            if (tablesInfo) tablesInfo.innerHTML = 'Error loading table information.';
+            if (dbStats) dbStats.innerHTML = 'Error loading database statistics.';
         }
     }
 
-    updateTablesUI(tableDetails) {
-        const tablesInfo = document.getElementById('tablesInfo');
+    setupRefreshButton() {
+        const refreshButton = document.createElement('button');
+        refreshButton.className = 'btn btn-outline-primary float-end';
+        refreshButton.innerHTML = '🔄 Refresh';
+        refreshButton.onclick = () => this.loadTableInfo();
         
-        let html = '<div class="accordion" id="tablesAccordion">';
-        
-        tableDetails.forEach((detail, index) => {
-            html += `
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" type="button" 
-                                data-bs-toggle="collapse" data-bs-target="#collapse${index}">
-                            ${detail.table.table_name}
-                        </button>
-                    </h2>
-                    <div id="collapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" 
-                         data-bs-parent="#tablesAccordion">
-                        <div class="accordion-body">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Column Name</th>
-                                        <th>Data Type</th>
-                                        <th>Nullable</th>
-                                        <th>Default Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${detail.columns.map(column => `
+        const h1 = document.querySelector('h1');
+        if (h1) h1.parentNode.insertBefore(refreshButton, h1.nextSibling);
+    }
+
+    async viewTable(tableName) {
+        try {
+            const { data, error } = await this.supabase
+                .from(tableName)
+                .select('*')
+                .limit(5);
+
+            if (error) throw error;
+
+            // Create modal to show data
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.innerHTML = `
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">${this.escapeHtml(tableName)} Preview</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
                                         <tr>
-                                            <td>${column.column_name}</td>
-                                            <td>${column.data_type}</td>
-                                            <td>${column.is_nullable}</td>
-                                            <td>${column.column_default || '-'}</td>
+                                            ${Object.keys(data[0] || {}).map(key => 
+                                                `<th>${this.escapeHtml(key)}</th>`
+                                            ).join('')}
                                         </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        ${data.map(row => `
+                                            <tr>
+                                                ${Object.values(row).map(value => 
+                                                    `<td>${this.escapeHtml(String(value))}</td>`
+                                                ).join('')}
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-muted">Showing first 5 records</div>
                         </div>
                     </div>
                 </div>
             `;
-        });
 
-        html += '</div>';
-        tablesInfo.innerHTML = html;
+            document.body.appendChild(modal);
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+
+            // Clean up when modal is hidden
+            modal.addEventListener('hidden.bs.modal', () => {
+                modal.remove();
+            });
+
+        } catch (error) {
+            console.error('Error viewing table:', error);
+            alert('Error loading table data');
+        }
     }
 
-    updateStatsUI(tableDetails) {
-        const dbStats = document.getElementById('dbStats');
-        
-        const stats = {
-            totalTables: tableDetails.length,
-            totalColumns: tableDetails.reduce((acc, detail) => acc + detail.columns.length, 0),
-        };
-
-        dbStats.innerHTML = `
-            <ul class="list-unstyled">
-                <li>Total Tables: ${stats.totalTables}</li>
-                <li>Total Columns: ${stats.totalColumns}</li>
-            </ul>
-        `;
-    }
-
-    showError(message) {
-        const toast = document.createElement('div');
-        toast.className = 'toast align-items-center text-white bg-danger border-0';
-        toast.setAttribute('role', 'alert');
-        toast.setAttribute('aria-live', 'assertive');
-        toast.setAttribute('aria-atomic', 'true');
-        
-        toast.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">
-                    ${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        `;
-
-        const container = document.createElement('div');
-        container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-        container.appendChild(toast);
-        document.body.appendChild(container);
-
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
+    escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 }
 
@@ -143,27 +204,30 @@ function copyToClipboard(elementId) {
     element.select();
     document.execCommand('copy');
     
-    // Show feedback
     const button = element.nextElementSibling;
     const originalText = button.textContent;
     button.textContent = 'Copied!';
-    setTimeout(() => button.textContent = originalText, 2000);
+    setTimeout(() => {
+        button.textContent = originalText;
+    }, 2000);
 }
 
 function togglePassword(elementId) {
-    const element = document.getElementById(elementId);
-    const button = element.nextElementSibling;
+    const input = document.getElementById(elementId);
+    const button = input.nextElementSibling;
     
-    if (element.type === 'password') {
-        element.type = 'text';
+    if (input.type === 'password') {
+        input.type = 'text';
         button.textContent = 'Hide';
     } else {
-        element.type = 'password';
+        input.type = 'password';
         button.textContent = 'Show';
     }
 }
 
-// Initialize when DOM is loaded
+// Initialize when DOM is loaded and make it globally available
+let projectInfo;
 document.addEventListener('DOMContentLoaded', () => {
-    new ProjectInfo();
+    projectInfo = new ProjectInfo();
+    window.projectInfo = projectInfo;
 });
