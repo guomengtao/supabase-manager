@@ -1,6 +1,6 @@
 export const VERSION = {
     number: '1.1.0',
-    lastUpdate: '2024-01-09',
+    lastUpdate: new Date().toISOString(),
     pages: [
         { name: 'Dashboard', path: 'index.html', description: 'Main dashboard', category: 'main' },
         { name: 'Project Info', path: 'info.html', description: 'Database and project information', category: 'main' },

@@ -199,11 +199,32 @@ export class Footer {
                     <small class="d-block">⭐ ${data.stargazers_count} stars</small>
                     <small class="d-block">🔄 ${data.forks_count} forks</small>
                     <small class="d-block">👁️ ${data.watchers_count} watchers</small>
+                    <small class="d-block text-muted mt-2">Last updated: ${new Date().toLocaleString()}</small>
                 `;
             }
         } catch (error) {
             console.error('Error loading GitHub info:', error);
+            const githubInfo = document.getElementById('githubInfo');
+            if (githubInfo) {
+                githubInfo.innerHTML = `
+                    <small class="text-muted">GitHub stats temporarily unavailable</small>
+                `;
+            }
         }
+    }
+
+    showError(message, context = '') {
+        console.warn(`${context}: ${message}`);
+        // Optionally show user-friendly error message
+    }
+
+    handleTableError(error, tableName) {
+        // Suppress 404 errors for missing tables
+        if (error.status === 404) {
+            this.showError(`Table '${tableName}' not found`, 'Table Access');
+            return;
+        }
+        console.error(`Error accessing table ${tableName}:`, error);
     }
 
     setupEventListeners() {
