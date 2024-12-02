@@ -25,7 +25,7 @@ const CONFIG = {
 };
 
 // Initialize Supabase client
-let supabaseClient = null;
+let supabase = null;
 
 async function initializeSupabase() {
     if (!CONFIG.supabaseUrl || !CONFIG.supabaseKey) {
@@ -34,9 +34,7 @@ async function initializeSupabase() {
 
     try {
         const supabaseLib = await waitForSupabase();
-        supabaseClient = supabaseLib.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
-        console.log('Supabase client initialized successfully');
-        return supabaseClient;
+        return supabaseLib.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
     } catch (error) {
         console.error('Failed to initialize Supabase client:', error);
         const errorElement = document.getElementById('errorMessage');
@@ -46,6 +44,14 @@ async function initializeSupabase() {
         }
         throw error;
     }
+}
+
+// Initialize and export Supabase client
+async function getSupabaseClient() {
+    if (!supabase) {
+        supabase = await initializeSupabase();
+    }
+    return supabase;
 }
 
 // Required tables definition
@@ -94,9 +100,7 @@ const REQUIRED_TABLES = {
 
 // Initialize tables function
 async function initializeTables() {
-    if (!supabaseClient) {
-        supabaseClient = await initializeSupabase();
-    }
+    const supabaseClient = await getSupabaseClient();
 
     console.log('Starting table initialization...');
 
@@ -165,8 +169,5 @@ async function initializeTables() {
     }
 }
 
-// Initialize Supabase when the module loads
-const supabase = await initializeSupabase();
-
 // Export configuration and utilities
-export { CONFIG, supabase, initializeTables, REQUIRED_TABLES };
+export { CONFIG, getSupabaseClient, initializeTables, REQUIRED_TABLES };

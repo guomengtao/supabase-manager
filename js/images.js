@@ -1,8 +1,19 @@
+import { getSupabaseClient } from './config.js';
+
 class ImageManager {
     constructor() {
-        this.supabase = supabase;
         this.setupEventListeners();
-        this.loadRecentUploads();
+        this.initializeSupabase();
+    }
+
+    async initializeSupabase() {
+        try {
+            this.supabase = await getSupabaseClient();
+            await this.loadRecentUploads();
+        } catch (error) {
+            console.error('Failed to initialize Supabase:', error);
+            this.showError('Failed to initialize Supabase client');
+        }
     }
 
     setupEventListeners() {
@@ -272,6 +283,6 @@ class ImageManager {
 
 // Initialize when DOM is loaded
 let imageManager;
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     imageManager = new ImageManager();
 });
