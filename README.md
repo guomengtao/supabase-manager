@@ -1,5 +1,9 @@
 # Supabase Manager
 
+[![Test](https://github.com/guomengtao/supabase-manager/actions/workflows/test.yml/badge.svg)](https://github.com/guomengtao/supabase-manager/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/guomengtao/supabase-manager/branch/main/graph/badge.svg)](https://codecov.io/gh/guomengtao/supabase-manager)
+[![GitHub Pages](https://github.com/guomengtao/supabase-manager/actions/workflows/pages.yml/badge.svg)](https://github.com/guomengtao/supabase-manager/actions/workflows/pages.yml)
+
 A comprehensive web application for managing Supabase projects with integrated features for database management and realtime updates.
 
 🌐 **Live Demo**: [http://supabase-manager.github.rinuo.com](http://supabase-manager.github.rinuo.com)
