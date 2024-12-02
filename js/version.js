@@ -1,5 +1,5 @@
 export const VERSION = {
-    number: '1.0.1',
+    number: '1.1.0',
     lastUpdate: '2024-01-09',
     pages: [
         { name: 'Dashboard', path: 'index.html', description: 'Main dashboard', category: 'main' },
@@ -11,6 +11,7 @@ export const VERSION = {
         { name: 'Files', path: 'files.html', description: 'File storage management', category: 'tools' },
         { name: 'Users', path: 'users.html', description: 'User management', category: 'tools' },
         { name: 'API Keys', path: 'api-keys.html', description: 'API key management', category: 'tools' },
-        { name: 'Tutorial', path: 'supabase-tutorial.html', description: 'Supabase integration guide', category: 'main' }
+        { name: 'Tutorial', path: 'supabase-tutorial.html', description: 'Supabase integration guide', category: 'main' },
+        { name: 'Build Info Page', path: 'build-info-page.html', description: 'Tutorial for building info page', category: 'main' }
     ]
 };

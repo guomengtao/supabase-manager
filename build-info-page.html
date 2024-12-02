@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Info Page Tutorial - Supabase Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .tutorial-step {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .code-preview {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+        .step-number {
+            background-color: #0d6efd;
+            color: white;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .live-demo {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Supabase Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="info.html">Project Info</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="build-info-page.html">Build Tutorial</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>How to Build the Project Info Page</h1>
+        <p class="lead">This tutorial will guide you through building a page similar to our Project Info page, step by step.</p>
+
+        <div class="alert alert-info">
+            <strong>Prerequisites:</strong>
+            <ul class="mb-0">
+                <li>Basic knowledge of HTML, JavaScript, and Bootstrap</li>
+                <li>Supabase project setup with API keys</li>
+                <li>Node.js installed for running the project</li>
+            </ul>
+        </div>
+
+        <div class="tutorial-step">
+            <h2><span class="step-number">1</span> Project Setup</h2>
+            <p>First, let's set up the basic HTML structure and include necessary dependencies:</p>
+            <pre><code class="language-html"><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Info - Supabase Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <!-- Navigation content -->
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Project Information</h1>
+        <!-- Content will go here -->
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="js/info.js"></script>
+</body>
+</html></code></pre>
+            <div class="mt-3">
+                <button class="btn btn-primary" onclick="showLiveDemo('step1')">View Live Demo</button>
+                <div id="step1Demo" class="live-demo" style="display: none;">
+                    <!-- Step 1 demo content -->
+                </div>
+            </div>
+        </div>
+
+        <div class="tutorial-step">
+            <h2><span class="step-number">2</span> HTML Structure</h2>
+            <p>Add the main content structure with Bootstrap cards:</p>
+            <pre><code class="language-html"><!-- Project Details Card -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Project Details</h5>
+                <div id="projectDetails">
+                    <div class="mb-3">
+                        <label class="fw-bold">Project URL:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="projectUrl" readonly>
+                            <button class="btn btn-outline-secondary copy-button" 
+                                    onclick="copyToClipboard('projectUrl')">Copy</button>
+                        </div>
+                    </div>
+                    <!-- More input groups -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Database Stats Card -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Database Statistics</h5>
+                <div id="dbStats">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div></code></pre>
+        </div>
+
+        <div class="tutorial-step">
+            <h2><span class="step-number">3</span> JavaScript Implementation</h2>
+            <p>Create the info.js file to handle the functionality:</p>
+            <pre><code class="language-javascript">export class ProjectInfo {
+    constructor() {
+        this.supabase = null;
+        this.initialize();
+    }
+
+    async initialize() {
+        try {
+            // Initialize Supabase client
+            this.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+            
+            // Load project information
+            await this.loadProjectInfo();
+            
+            // Load database statistics
+            await this.loadDatabaseStats();
+            
+            // Load tables information
+            await this.loadTablesInfo();
+        } catch (error) {
+            console.error('Initialization error:', error);
+            this.showError('Failed to initialize the project info page');
+        }
+    }
+
+    async loadProjectInfo() {
+        const projectUrl = document.getElementById('projectUrl');
+        projectUrl.value = SUPABASE_URL;
+        // Add more project info loading logic
+    }
+
+    // Add more methods for statistics and tables
+}</code></pre>
+            <p>Key Features to Implement:</p>
+            <ul>
+                <li>Supabase client initialization</li>
+                <li>Project information loading</li>
+                <li>Database statistics gathering</li>
+                <li>Table information retrieval</li>
+                <li>Error handling</li>
+            </ul>
+        </div>
+
+        <div class="tutorial-step">
+            <h2><span class="step-number">4</span> Utility Functions</h2>
+            <p>Add these helper functions for better user experience:</p>
+            <pre><code class="language-javascript">// Copy to clipboard functionality
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    element.select();
+    document.execCommand('copy');
+    
+    const button = element.nextElementSibling;
+    const originalText = button.textContent;
+    button.textContent = 'Copied!';
+    setTimeout(() => button.textContent = originalText, 2000);
+}
+
+// Toggle password visibility
+function togglePassword(elementId) {
+    const element = document.getElementById(elementId);
+    if (element.type === 'password') {
+        element.type = 'text';
+        element.nextElementSibling.textContent = 'Hide';
+    } else {
+        element.type = 'password';
+        element.nextElementSibling.textContent = 'Show';
+    }
+}</code></pre>
+        </div>
+
+        <div class="tutorial-step">
+            <h2><span class="step-number">5</span> Error Handling</h2>
+            <p>Implement robust error handling:</p>
+            <pre><code class="language-javascript">class ProjectInfo {
+    showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger';
+        errorDiv.textContent = message;
+        document.querySelector('.container').prepend(errorDiv);
+        
+        setTimeout(() => errorDiv.remove(), 5000);
+    }
+
+    handleError(error, context) {
+        console.error(`Error in ${context}:`, error);
+        this.showError(`Failed to ${context}. Please try again.`);
+    }
+}</code></pre>
+        </div>
+
+        <div class="tutorial-step">
+            <h2><span class="step-number">6</span> Testing</h2>
+            <p>Test your implementation:</p>
+            <ul>
+                <li>Verify all information is displayed correctly</li>
+                <li>Test copy functionality</li>
+                <li>Test password visibility toggle</li>
+                <li>Verify error handling</li>
+                <li>Test responsive design</li>
+            </ul>
+            <div class="alert alert-warning">
+                <strong>Important:</strong> Always test with both valid and invalid data to ensure proper error handling.
+            </div>
+        </div>
+
+        <div class="mt-4 mb-4">
+            <h2>Live Demo</h2>
+            <p>Try out the completed implementation:</p>
+            <div id="liveDemoSection" class="live-demo">
+                <!-- Live demo content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
+    <script type="module" src="js/tutorial.js"></script>
+    <script type="module" src="js/components/footer.js"></script>
+</body>
+</html>

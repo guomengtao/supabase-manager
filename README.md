@@ -1,45 +1,19 @@
 # Supabase Manager
 
-A comprehensive web application for managing and interacting with Supabase projects. Built with HTML, JavaScript, and Bootstrap, hosted on GitHub Pages.
+A comprehensive web application for managing Supabase projects with integrated features for database management and realtime updates.
 
 🌐 **Live Demo**: [http://supabase-manager.github.rinuo.com](http://supabase-manager.github.rinuo.com)
 
 ## Features
 
-- 📊 **Dashboard**
-  - Real-time database statistics
-  - Recent activities tracking
-  - Quick access to project credentials
-
-- 📋 **Project Info**
-  - Project details display
-  - Table schema information
-  - Connection status monitoring
-
-- 📝 **Articles Management**
-  - Full CRUD operations
-  - Tag management
-  - URL tracking
-  - Soft delete functionality
-
-- ⚡ **Real-time Connection**
-  - Live table change subscriptions
-  - Event logging
-  - Connection status monitoring
-
-- 🖼️ **Image Upload**
-  - Drag and drop support
-  - Image preview
-  - File type validation
-  - 5MB size limit
-  - Public URL generation
-
-- 📁 **File Manager**
-  - Multi-file upload support
-  - Storage usage tracking
-  - File search functionality
-  - 50MB size limit
-  - Link generation
+- 📊 **Project Information Dashboard**
+- 📝 **Article Management System**
+- 🔄 **Real-time Updates Demo**
+- 📁 **File Storage Management**
+- 🖼️ **Image Upload & Management**
+- 👥 **User Management**
+- 🔑 **API Key Management**
+- 📚 **Interactive Tutorials**
 
 ## Tech Stack
 
@@ -59,82 +33,67 @@ A comprehensive web application for managing and interacting with Supabase proje
 1. Clone the repository:
    ```bash
    git clone https://github.com/guomengtao/supabase-manager.git
+   cd supabase-manager
    ```
 
-2. Configure Supabase:
-   - Create a new project on [Supabase](https://supabase.com)
-   - Update `js/config.js` with your project URL and anon key
-   - Create necessary storage buckets: 'images' and 'files'
-   - Set up the following tables:
-     ```sql
-     -- Articles table
-     create table articles (
-       id uuid default uuid_generate_v4() primary key,
-       title text not null,
-       content text not null,
-       created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-       updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
-       is_deleted boolean default false,
-       url text,
-       tags text[]
-     );
-     ```
+2. Configure your Supabase credentials:
+   - Copy `js/config.example.js` to `js/config.js`
+   - Update with your Supabase project URL and API key
 
-3. Deploy:
-   - Push to GitHub
-   - Enable GitHub Pages in your repository settings
-   - Set the branch to `main` and folder to `/ (root)`
-   - Configure custom domain (optional):
-     1. Add a CNAME file with your domain
-     2. Configure DNS settings:
-        ```
-        Type: A
-        Name: supabase-manager.github
-        Value: 185.199.108.153
-        ```
-        ```
-        Type: CNAME
-        Name: supabase-manager.github
-        Value: guomengtao.github.io
-        ```
+3. Serve the application:
+   ```bash
+   # Using Python
+   python -m http.server 8000
 
-## Usage
+   # Or using Node.js
+   npx serve
+   ```
 
-Visit [http://supabase-manager.github.rinuo.com](http://supabase-manager.github.rinuo.com) or your deployed instance and use the navigation menu to access different features:
+4. Open [http://localhost:8000](http://localhost:8000) in your browser
 
-- **Dashboard**: View project statistics and connection details
-- **Project Info**: Explore database schema and project configuration
-- **Articles**: Manage your articles with tags and URLs
-- **Real-time**: Monitor real-time database changes
-- **Image Upload**: Upload and manage images
-- **File Manager**: Handle file uploads and storage
+## Tutorials
 
-## Security Considerations
+We provide step-by-step tutorials to help you understand and extend the application:
 
-- Content Security Policy (CSP) implemented
-- Strict HTTPS enforcement
-- File type validation
-- Size restrictions for uploads
-- Cross-origin resource sharing configured
-- Security headers implemented:
-  - X-Content-Type-Options
-  - X-Frame-Options
-  - Strict-Transport-Security
+1. [Building a Project Info Page](build-info-page.html) - Learn how to create a page with project information, database statistics, and table management.
 
-## Development
+## Project Structure
 
-- **Local Development**:
-  ```bash
-  # Using Python's built-in server
-  python -m http.server 8000
-  # Or using Node.js http-server
-  npx http-server
-  ```
+```
+supabase-manager/
+├── index.html          # Main dashboard
+├── info.html          # Project information
+├── articles.html      # Article management
+├── realtime.html      # Real-time demo
+├── images.html        # Image management
+├── files.html         # File management
+├── users.html         # User management
+├── api-keys.html      # API key management
+├── js/
+│   ├── components/    # Reusable components
+│   ├── config.js      # Configuration
+│   └── *.js          # Page-specific scripts
+└── styles.css         # Global styles
+```
 
-- **Code Style**:
-  - ESLint for JavaScript linting
-  - Prettier for code formatting
-  - Bootstrap conventions for HTML/CSS
+## Version History
+
+### v1.1.0 (Latest)
+- Added comprehensive tutorial system
+- Enhanced footer with GitHub integration
+- Improved project statistics
+- Added changelog and documentation
+
+### v1.0.1
+- Added footer component
+- Enhanced error handling
+- Improved table management
+- Added project statistics
+
+### v1.0.0
+- Initial release
+- Basic project setup
+- Core features implementation
 
 ## Contributing
 
@@ -147,6 +106,12 @@ Visit [http://supabase-manager.github.rinuo.com](http://supabase-manager.github.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+- GitHub Issues: [Create an issue](https://github.com/guomengtao/supabase-manager/issues)
+- Documentation: See the [Tutorial Section](build-info-page.html)
+- Supabase Docs: [https://supabase.com/docs](https://supabase.com/docs)
 
 ## Acknowledgments
 
