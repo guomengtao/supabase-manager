@@ -2,19 +2,26 @@
 const SUPABASE_URL = 'https://tkcrnfgnspvtzwbbvyfv.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrY3JuZmduc3B2dHp3YmJ2eWZ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMDk4ODAxOCwiZXhwIjoyMDQ2NTY0MDE4fQ.q83fxtFeCVO4uhzYUnZzKjSwSQTkiFo62BFywe4B-ts';
 
-// Initialize Supabase client with retries and error handling
-let supabaseClient;
-try {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-} catch (error) {
-    console.error('Failed to initialize Supabase client:', error);
-    // Show error message to user
-    document.getElementById('errorMessage')?.textContent = 'Failed to connect to database. Please try again later.';
-}
+// Initialize Supabase client
+const initSupabase = () => {
+    try {
+        return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (error) {
+        console.error('Failed to initialize Supabase client:', error);
+        document.getElementById('errorMessage')?.textContent = 'Failed to connect to database. Please try again later.';
+        return null;
+    }
+};
 
-// Export the initialized client
-export const supabase = supabaseClient;
-export { SUPABASE_URL, SUPABASE_KEY };
+// Create the Supabase client
+const supabase = initSupabase();
+
+// Export configurations
+export {
+    supabase,
+    SUPABASE_URL,
+    SUPABASE_KEY
+};
 
 // Storage bucket names
 const STORAGE_BUCKETS = {
