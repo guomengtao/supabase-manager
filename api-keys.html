@@ -140,27 +140,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function togglePassword(elementId) {
-            const input = document.getElementById(elementId);
-            input.type = input.type === 'password' ? 'text' : 'password';
-            const button = input.nextElementSibling;
-            button.textContent = input.type === 'password' ? 'Show' : 'Hide';
-        }
-
-        function copyToClipboard(elementId) {
-            const input = document.getElementById(elementId);
-            input.select();
-            document.execCommand('copy');
-            
-            // Show feedback
-            const button = input.nextElementSibling.nextElementSibling;
-            const originalText = button.textContent;
-            button.textContent = 'Copied!';
-            setTimeout(() => {
-                button.textContent = originalText;
-            }, 2000);
-        }
-    </script>
+    <script type="module" src="js/api-keys.js"></script>
+    <script type="module" src="js/components/footer.js"></script>
 </body>
 </html>
