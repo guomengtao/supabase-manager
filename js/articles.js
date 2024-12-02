@@ -2,15 +2,17 @@ import { supabase } from './config.js';
 
 class ArticlesManager {
     constructor() {
+        // Check if Supabase is initialized
         if (!supabase) {
             console.error('Supabase client not initialized');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'alert alert-danger';
-            errorDiv.textContent = 'Failed to connect to database. Please try again later.';
-            document.querySelector('.container').prepend(errorDiv);
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.textContent = 'Database connection failed. Please refresh the page.';
+                errorElement.classList.remove('d-none');
+            }
             return;
         }
-        
+
         this.supabase = supabase;
         this.loadArticles();
         this.setupEventListeners();
