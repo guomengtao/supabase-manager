@@ -4,10 +4,39 @@ import { showToast } from './utils.js';
 export class ArticlesManager {
     constructor() {
         this.articlesList = document.getElementById('articlesList');
+        if (!this.articlesList) {
+            console.error('Articles list element not found');
+            return;
+        }
+
+        if (!supabase) {
+            console.error('Supabase client not initialized');
+            this.showError('Database connection failed. Please refresh the page.');
+            return;
+        }
+    }
+
+    showError(message) {
+        if (this.articlesList) {
+            this.articlesList.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    ${this.escapeHtml(message)}
+                </div>
+            `;
+        }
+        showToast(message, 'danger');
     }
 
     async loadArticles() {
+        if (!this.articlesList) return;
+        
         try {
+            this.articlesList.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div></div>';
+
+            if (!supabase) {
+                throw new Error('Database connection not available');
+            }
+
             const { data: articles, error } = await supabase
                 .from('articles')
                 .select('*')
@@ -15,8 +44,12 @@ export class ArticlesManager {
 
             if (error) throw error;
 
-            if (articles.length === 0) {
-                this.articlesList.innerHTML = '<div class="list-group-item">No articles found</div>';
+            if (!articles || articles.length === 0) {
+                this.articlesList.innerHTML = `
+                    <div class="alert alert-info" role="alert">
+                        No articles found. Create your first article!
+                    </div>
+                `;
                 return;
             }
 
@@ -33,8 +66,7 @@ export class ArticlesManager {
 
         } catch (error) {
             console.error('Error loading articles:', error);
-            showToast('Error loading articles', 'danger');
-            this.articlesList.innerHTML = '<div class="list-group-item text-danger">Error loading articles</div>';
+            this.showError(error.message || 'Error loading articles');
         }
     }
 
@@ -42,6 +74,11 @@ export class ArticlesManager {
         const titleInput = document.getElementById('articleTitle');
         const contentInput = document.getElementById('articleContent');
         
+        if (!titleInput || !contentInput) {
+            this.showError('Form elements not found');
+            return;
+        }
+
         const title = titleInput.value.trim();
         const content = contentInput.value.trim();
 
@@ -51,6 +88,10 @@ export class ArticlesManager {
         }
 
         try {
+            if (!supabase) {
+                throw new Error('Database connection not available');
+            }
+
             const { error } = await supabase
                 .from('articles')
                 .insert([{ title, content }]);
@@ -64,16 +105,25 @@ export class ArticlesManager {
 
         } catch (error) {
             console.error('Error creating article:', error);
-            showToast('Error creating article', 'danger');
+            this.showError(error.message || 'Error creating article');
         }
     }
 
     async deleteArticle(id) {
+        if (!id) {
+            this.showError('Invalid article ID');
+            return;
+        }
+
         if (!confirm('Are you sure you want to delete this article?')) {
             return;
         }
 
         try {
+            if (!supabase) {
+                throw new Error('Database connection not available');
+            }
+
             const { error } = await supabase
                 .from('articles')
                 .delete()
@@ -86,7 +136,7 @@ export class ArticlesManager {
 
         } catch (error) {
             console.error('Error deleting article:', error);
-            showToast('Error deleting article', 'danger');
+            this.showError(error.message || 'Error deleting article');
         }
     }
 
