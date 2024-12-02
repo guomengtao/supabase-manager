@@ -53,7 +53,7 @@ const REQUIRED_TABLES = {
     users: {
         name: 'users',
         columns: [
-            { name: 'id', type: 'uuid', primary: true },
+            { name: 'id', type: 'uuid', primary: true, default: 'gen_random_uuid()' },
             { name: 'created_at', type: 'timestamp with time zone', default: "timezone('utc'::text, now())" },
             { name: 'email', type: 'text' },
             { name: 'name', type: 'text' }
@@ -62,7 +62,7 @@ const REQUIRED_TABLES = {
     files: {
         name: 'files',
         columns: [
-            { name: 'id', type: 'uuid', primary: true },
+            { name: 'id', type: 'uuid', primary: true, default: 'gen_random_uuid()' },
             { name: 'created_at', type: 'timestamp with time zone', default: "timezone('utc'::text, now())" },
             { name: 'name', type: 'text' },
             { name: 'size', type: 'bigint' },
@@ -73,7 +73,7 @@ const REQUIRED_TABLES = {
     images: {
         name: 'images',
         columns: [
-            { name: 'id', type: 'uuid', primary: true },
+            { name: 'id', type: 'uuid', primary: true, default: 'gen_random_uuid()' },
             { name: 'created_at', type: 'timestamp with time zone', default: "timezone('utc'::text, now())" },
             { name: 'name', type: 'text' },
             { name: 'url', type: 'text' },
@@ -84,7 +84,7 @@ const REQUIRED_TABLES = {
     articles: {
         name: 'articles',
         columns: [
-            { name: 'id', type: 'uuid', primary: true },
+            { name: 'id', type: 'uuid', primary: true, default: 'gen_random_uuid()' },
             { name: 'created_at', type: 'timestamp with time zone', default: "timezone('utc'::text, now())" },
             { name: 'title', type: 'text' },
             { name: 'content', type: 'text' }
@@ -98,8 +98,12 @@ async function initializeTables() {
         supabaseClient = await initializeSupabase();
     }
 
+    console.log('Starting table initialization...');
+
     try {
         for (const [tableName, tableInfo] of Object.entries(REQUIRED_TABLES)) {
+            console.log(`Processing table: ${tableName}`);
+            
             try {
                 // Check if table exists
                 const { data: existingTable, error: checkError } = await supabaseClient
@@ -108,6 +112,8 @@ async function initializeTables() {
                     .limit(1);
 
                 if (checkError && checkError.code === '42P01') {
+                    console.log(`Table ${tableName} does not exist, creating...`);
+                    
                     // Table doesn't exist, create it
                     const columns = tableInfo.columns.map(col => {
                         let colDef = `${col.name} ${col.type}`;
@@ -120,12 +126,19 @@ async function initializeTables() {
                     const createTableSQL = `
                         create table if not exists ${tableInfo.name} (
                             ${columns}
-                        )
+                        );
                     `;
+
+                    console.log('Executing SQL:', createTableSQL);
 
                     const { error: createError } = await supabaseClient.rpc('exec_sql', { sql: createTableSQL });
                     if (createError) {
                         console.error(`Error creating table ${tableName}:`, createError);
+                        const errorElement = document.getElementById('errorMessage');
+                        if (errorElement) {
+                            errorElement.textContent = `Error creating table ${tableName}. Some features may not work.`;
+                            errorElement.classList.remove('d-none');
+                        }
                     } else {
                         console.log(`Table ${tableName} created successfully`);
                     }
@@ -134,8 +147,14 @@ async function initializeTables() {
                 }
             } catch (tableError) {
                 console.error(`Failed to check/create table ${tableName}:`, tableError);
+                const errorElement = document.getElementById('errorMessage');
+                if (errorElement) {
+                    errorElement.textContent = `Failed to initialize table ${tableName}. Some features may not work.`;
+                    errorElement.classList.remove('d-none');
+                }
             }
         }
+        console.log('Table initialization completed');
     } catch (err) {
         console.error('Error initializing tables:', err);
         const errorElement = document.getElementById('errorMessage');
