@@ -189,7 +189,7 @@ export class Footer {
 
     async loadGitHubInfo() {
         const CACHE_KEY = 'github_stats';
-        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+        const CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
 
         try {
             // Check cache first
@@ -202,18 +202,11 @@ export class Footer {
                 }
             }
 
-            // Add delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Use a proxy service to avoid CORS and rate limiting
+            const proxyUrl = 'https://api.allorigins.win/raw?url=' + 
+                           encodeURIComponent('https://api.github.com/repos/guomengtao/supabase-manager');
             
-            const response = await fetch('https://api.github.com/repos/guomengtao/supabase-manager', {
-                headers: {
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            });
-
-            if (response.status === 403) {
-                throw new Error('GitHub API rate limit exceeded');
-            }
+            const response = await fetch(proxyUrl);
 
             if (!response.ok) {
                 throw new Error(`GitHub API error: ${response.status}`);
@@ -230,6 +223,15 @@ export class Footer {
             this.updateGitHubStats(data);
         } catch (error) {
             console.warn('GitHub info loading:', error.message);
+            
+            // Try to use cached data even if expired
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const { data } = JSON.parse(cached);
+                this.updateGitHubStats(data);
+                return;
+            }
+            
             this.showGitHubError();
         }
     }
@@ -239,9 +241,9 @@ export class Footer {
         if (githubInfo && data) {
             githubInfo.innerHTML = `
                 <small class="d-block text-muted">GitHub Stats:</small>
-                <small class="d-block">⭐ ${data.stargazers_count} stars</small>
-                <small class="d-block">🔄 ${data.forks_count} forks</small>
-                <small class="d-block">👁️ ${data.watchers_count} watchers</small>
+                <small class="d-block">⭐ ${data.stargazers_count || 0} stars</small>
+                <small class="d-block">🔄 ${data.forks_count || 0} forks</small>
+                <small class="d-block">👁️ ${data.watchers_count || 0} watchers</small>
                 <small class="d-block text-muted mt-2">Last updated: ${new Date().toLocaleString()}</small>
             `;
         }
@@ -252,9 +254,10 @@ export class Footer {
         if (githubInfo) {
             githubInfo.innerHTML = `
                 <small class="text-muted">
-                    GitHub stats temporarily unavailable<br>
                     <a href="https://github.com/guomengtao/supabase-manager" 
-                       target="_blank" class="text-muted">View on GitHub</a>
+                       target="_blank" class="text-decoration-none">
+                        <i class="bi bi-github"></i> View on GitHub
+                    </a>
                 </small>
             `;
         }
