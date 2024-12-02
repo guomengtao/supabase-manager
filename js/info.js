@@ -1,5 +1,32 @@
 import { supabase } from './config.js';
 
+// Export utility functions for HTML use
+export function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    element.select();
+    document.execCommand('copy');
+    
+    const button = element.nextElementSibling;
+    const originalText = button.textContent;
+    button.textContent = 'Copied!';
+    setTimeout(() => {
+        button.textContent = originalText;
+    }, 2000);
+}
+
+export function togglePassword(elementId) {
+    const input = document.getElementById(elementId);
+    const button = input.nextElementSibling;
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        button.textContent = 'Hide';
+    } else {
+        input.type = 'password';
+        button.textContent = 'Show';
+    }
+}
+
 class ProjectInfo {
     constructor() {
         if (!supabase) {
@@ -34,13 +61,57 @@ class ProjectInfo {
             const tablesInfo = document.getElementById('tablesInfo');
             const dbStats = document.getElementById('dbStats');
 
-            // Get tables information
+            // Get list of tables using a direct query
             const { data: tables, error } = await this.supabase
-                .from('information_schema.tables')
-                .select('table_name, table_schema')
-                .eq('table_schema', 'public');
+                .rpc('get_tables')
+                .select('*');
 
-            if (error) throw error;
+            if (error) {
+                // Fallback to a simpler query if RPC fails
+                const { data: fallbackTables, error: fallbackError } = await this.supabase
+                    .from('articles')  // Query a known table
+                    .select('*', { count: 'exact', head: true });
+
+                if (fallbackError) throw fallbackError;
+
+                // Use a simple display for fallback
+                if (tablesInfo) {
+                    tablesInfo.innerHTML = `
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Table Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>articles</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="window.projectInfo.viewTable('articles')">
+                                            View Data
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                if (dbStats) {
+                    dbStats.innerHTML = `
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <span>Status:</span>
+                                    <strong class="text-success">Connected</strong>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                return;
+            }
 
             // Get row counts for each table
             const tableStats = await Promise.all(
@@ -99,7 +170,7 @@ class ProjectInfo {
                                     <td>${this.escapeHtml(table.name)}</td>
                                     <td>${table.count}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary" onclick="projectInfo.viewTable('${table.name}')">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="window.projectInfo.viewTable('${table.name}')">
                                             View Data
                                         </button>
                                     </td>
@@ -195,33 +266,6 @@ class ProjectInfo {
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
-    }
-}
-
-// Utility functions
-function copyToClipboard(elementId) {
-    const element = document.getElementById(elementId);
-    element.select();
-    document.execCommand('copy');
-    
-    const button = element.nextElementSibling;
-    const originalText = button.textContent;
-    button.textContent = 'Copied!';
-    setTimeout(() => {
-        button.textContent = originalText;
-    }, 2000);
-}
-
-function togglePassword(elementId) {
-    const input = document.getElementById(elementId);
-    const button = input.nextElementSibling;
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        button.textContent = 'Hide';
-    } else {
-        input.type = 'password';
-        button.textContent = 'Show';
     }
 }
 
