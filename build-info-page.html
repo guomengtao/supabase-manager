@@ -136,37 +136,113 @@
         <div class="tutorial-step">
             <h2><span class="step-number">2</span> HTML Structure</h2>
             <p>Add the main content structure with Bootstrap cards:</p>
-            <pre><code class="language-html"><!-- Project Details Card -->
-<div class="row mt-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Project Details</h5>
-                <div id="projectDetails">
-                    <div class="mb-3">
-                        <label class="fw-bold">Project URL:</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="projectUrl" readonly>
-                            <button class="btn btn-outline-secondary copy-button" 
-                                    onclick="copyToClipboard('projectUrl')">Copy</button>
+            
+            <div class="code-example">
+                <form id="demoForm" class="mb-4" onsubmit="return false;" autocomplete="off">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Project Details</h5>
+                            
+                            <div class="mb-3">
+                                <label for="demoProjectUrl" class="form-label">Project URL:</label>
+                                <div class="input-group">
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="demoProjectUrl" 
+                                           value="https://example.supabase.co" 
+                                           readonly
+                                           autocomplete="off">
+                                    <button class="btn btn-outline-secondary" 
+                                            type="button" 
+                                            onclick="tutorial.copyToClipboard('demoProjectUrl')"
+                                            aria-label="Copy project URL">
+                                        <i class="bi bi-clipboard"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="demoApiKey" class="form-label">API Key:</label>
+                                <div class="input-group">
+                                    <input type="password" 
+                                           class="form-control" 
+                                           id="demoApiKey" 
+                                           value="demo-key-123" 
+                                           readonly
+                                           autocomplete="off"
+                                           aria-label="API Key">
+                                    <button class="btn btn-outline-secondary" 
+                                            type="button" 
+                                            onclick="tutorial.togglePassword('demoApiKey')"
+                                            aria-label="Toggle API key visibility">
+                                        <i class="bi bi-eye"></i> Show
+                                    </button>
+                                    <button class="btn btn-outline-secondary" 
+                                            type="button" 
+                                            onclick="tutorial.copyToClipboard('demoApiKey')"
+                                            aria-label="Copy API key">
+                                        <i class="bi bi-clipboard"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <h6>Database Statistics</h6>
+                                <div id="dbStats" class="text-muted">
+                                    <div class="placeholder-glow">
+                                        <span class="placeholder col-6"></span>
+                                        <span class="placeholder col-4"></span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <!-- More input groups -->
-                </div>
+                </form>
+
+                <pre><code class="language-html">&lt;div class="card"&gt;
+    &lt;div class="card-body"&gt;
+        &lt;h5 class="card-title"&gt;Project Details&lt;/h5&gt;
+        
+        &lt;div class="mb-3"&gt;
+            &lt;label for="projectUrl" class="form-label"&gt;Project URL:&lt;/label&gt;
+            &lt;div class="input-group"&gt;
+                &lt;input type="text" 
+                       class="form-control" 
+                       id="projectUrl" 
+                       readonly&gt;
+                &lt;button class="btn btn-outline-secondary"&gt;Copy&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class="mb-3"&gt;
+            &lt;label for="apiKey" class="form-label"&gt;API Key:&lt;/label&gt;
+            &lt;div class="input-group"&gt;
+                &lt;input type="password" 
+                       class="form-control" 
+                       id="apiKey" 
+                       readonly&gt;
+                &lt;button class="btn btn-outline-secondary"&gt;Show&lt;/button&gt;
+                &lt;button class="btn btn-outline-secondary"&gt;Copy&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class="mb-3"&gt;
+            &lt;h6&gt;Database Statistics&lt;/h6&gt;
+            &lt;div id="dbStats"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
             </div>
-        </div>
-    </div>
-    
-    <!-- Database Stats Card -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Database Statistics</h5>
-                <div id="dbStats">Loading...</div>
+
+            <div class="alert alert-info mt-3">
+                <h5><i class="bi bi-info-circle"></i> Key Points</h5>
+                <ul>
+                    <li>Use Bootstrap's card component for consistent styling</li>
+                    <li>Implement proper form structure for inputs</li>
+                    <li>Add proper ARIA labels for accessibility</li>
+                    <li>Include loading states for async content</li>
+                </ul>
             </div>
-        </div>
-    </div>
-</div></code></pre>
         </div>
 
         <div class="tutorial-step">
