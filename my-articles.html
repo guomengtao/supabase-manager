@@ -1,21 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Articles</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Articles - Supabase Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Load Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.19.0/dist/supabase.umd.min.js"></script>
+    <style>
+        .toast {
+            min-width: 300px;
+        }
+        #realtimeStatus {
+            z-index: 1050;
+        }
+    </style>
 </head>
 <body>
-    <h1>My Articles</h1>
-    <div id="articles"></div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Supabase Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="my-articles.html">My Articles</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <!-- Load Supabase with a specific version -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.19.0/dist/supabase.umd.min.js"></script>
-    <!-- Alternatively, use the ES module version if your environment supports it -->
-    <!-- <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.19.0/dist/supabase.esm.js';
-        // Your code here, but note that you can't directly use `supabase` as a global variable with ES modules
-    </script> -->
+    <div class="container my-5">
+        <!-- Error message container -->
+        <div id="errorMessage" class="alert alert-danger d-none"></div>
 
-    <!-- Your custom JavaScript file -->
-    <script src="my-articles.js"></script>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>My Articles</h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addArticleModal">
+                Add New Article
+            </button>
+        </div>
+
+        <!-- Articles list -->
+        <div id="articles" class="row"></div>
+
+        <!-- Add Article Modal -->
+        <div class="modal fade" id="addArticleModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New Article</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="articleForm">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="content" class="form-label">Content</label>
+                                <textarea class="form-control" id="content" rows="3" required></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="saveArticle">Save Article</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Bootstrap and modules -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="js/config.js"></script>
+    <script type="module" src="my-articles.js"></script>
 </body>
 </html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Connection Tutorial - Supabase Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        pre {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background-color: #0d6efd;
+            color: white;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Supabase Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="articles.html">Articles</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="supabase-tutorial.html">Tutorial</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="api-keys.html">API Keys</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h1>How to Connect to Supabase API</h1>
+        <p class="lead">A step-by-step guide using the Articles page as an example</p>
+
+        <div class="alert alert-info">
+            <strong>📌 Note:</strong> This tutorial uses the Articles page as a practical example of how to connect to Supabase.
+            The same principles apply to other features like realtime and file upload.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Prerequisites</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Supabase project created (<a href="https://app.supabase.com" target="_blank">Create one here</a>)</li>
+                    <li>Supabase URL and API keys (see <a href="api-keys.html">API Keys guide</a>)</li>
+                    <li>Basic understanding of HTML and JavaScript</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step mb-4">
+            <h3><span class="step-number">1</span> HTML Structure</h3>
+            <p>First, create your HTML file with necessary scripts:</p>
+            <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Articles - Supabase Manager&lt;/title&gt;
+    &lt;!-- Load Supabase --&gt;
+    &lt;script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"&gt;&lt;/script&gt;
+    &lt;!-- Your other styles and scripts --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id="errorMessage" class="alert alert-danger d-none"&gt;&lt;/div&gt;
+    &lt;!-- Your content here --&gt;
+
+    &lt;!-- Load your modules --&gt;
+    &lt;script type="module" src="js/config.js"&gt;&lt;/script&gt;
+    &lt;script type="module" src="js/articles.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+
+        <div class="step mb-4">
+            <h3><span class="step-number">2</span> Configure Supabase Client</h3>
+            <p>Create a config.js file to initialize Supabase:</p>
+            <pre><code class="language-javascript">// config.js
+const SUPABASE_URL = 'your-project-url';
+const SUPABASE_KEY = 'your-anon-key';
+
+let supabase = null;
+
+function showError(message) {
+    const errorElement = document.getElementById('errorMessage');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.classList.remove('d-none');
+    }
+}
+
+function initializeSupabase() {
+    if (!window.supabase) {
+        showError('Supabase library not loaded');
+        return null;
+    }
+
+    try {
+        return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (error) {
+        console.error('Failed to initialize Supabase:', error);
+        showError('Failed to connect to database');
+        return null;
+    }
+}
+
+supabase = initializeSupabase();
+
+export { supabase };</code></pre>
+        </div>
+
+        <div class="step mb-4">
+            <h3><span class="step-number">3</span> Create Data Access Layer</h3>
+            <p>Create your main JavaScript file (e.g., articles.js):</p>
+            <pre><code class="language-javascript">// articles.js
+import { supabase } from './config.js';
+
+class ArticlesManager {
+    constructor() {
+        // Check Supabase connection
+        if (!supabase) {
+            console.error('Supabase client not initialized');
+            return;
+        }
+
+        this.supabase = supabase;
+        this.loadArticles();
+        this.setupEventListeners();
+    }
+
+    async loadArticles() {
+        try {
+            const { data, error } = await this.supabase
+                .from('articles')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            this.displayArticles(data);
+        } catch (error) {
+            console.error('Error loading articles:', error);
+            showError('Failed to load articles');
+        }
+    }
+
+    // Other methods...
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    new ArticlesManager();
+});</code></pre>
+        </div>
+
+        <div class="step mb-4">
+            <h3><span class="step-number">4</span> Common Operations</h3>
+            <div class="card">
+                <div class="card-body">
+                    <h5>Select Data</h5>
+                    <pre><code class="language-javascript">const { data, error } = await supabase
+    .from('table_name')
+    .select('*');</code></pre>
+
+                    <h5>Insert Data</h5>
+                    <pre><code class="language-javascript">const { data, error } = await supabase
+    .from('table_name')
+    .insert([{ column: 'value' }]);</code></pre>
+
+                    <h5>Update Data</h5>
+                    <pre><code class="language-javascript">const { data, error } = await supabase
+    .from('table_name')
+    .update({ column: 'new_value' })
+    .eq('id', record_id);</code></pre>
+
+                    <h5>Delete Data</h5>
+                    <pre><code class="language-javascript">const { data, error } = await supabase
+    .from('table_name')
+    .delete()
+    .eq('id', record_id);</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="step mb-4">
+            <h3><span class="step-number">5</span> Error Handling</h3>
+            <pre><code class="language-javascript">async function handleDatabaseOperation() {
+    try {
+        const { data, error } = await supabase.from('table').select('*');
+        
+        if (error) {
+            throw error;
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Database error:', error);
+        showError('Failed to perform operation');
+        return null;
+    }
+}</code></pre>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Applying to Other Features</h5>
+            </div>
+            <div class="card-body">
+                <h6>Realtime Subscriptions</h6>
+                <pre><code class="language-javascript">const subscription = supabase
+    .channel('table_changes')
+    .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'your_table' },
+        payload => console.log(payload)
+    )
+    .subscribe();</code></pre>
+
+                <h6>File Upload</h6>
+                <pre><code class="language-javascript">const { data, error } = await supabase.storage
+    .from('bucket_name')
+    .upload('file_path', file);</code></pre>
+            </div>
+        </div>
+
+        <div class="alert alert-success">
+            <h5>🎉 Next Steps</h5>
+            <p>Now that you understand the basics:</p>
+            <ol>
+                <li>Try implementing CRUD operations</li>
+                <li>Add realtime subscriptions</li>
+                <li>Implement file uploads</li>
+                <li>Add authentication</li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
+</body>
+</html>
