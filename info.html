@@ -53,15 +53,15 @@
                                 <label class="fw-bold">Project URL:</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="projectUrl" readonly>
-                                    <button class="btn btn-outline-secondary copy-button" type="button" data-action="copy" data-target="projectUrl">Copy</button>
+                                    <button class="btn btn-outline-secondary copy-button" type="button" onclick="copyToClipboard('projectUrl')">Copy</button>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="fw-bold">API Key:</label>
                                 <div class="input-group">
                                     <input type="password" class="form-control" id="apiKey" readonly>
-                                    <button class="btn btn-outline-secondary" type="button" data-action="toggle" data-target="apiKey">Show</button>
-                                    <button class="btn btn-outline-secondary copy-button" type="button" data-action="copy" data-target="apiKey">Copy</button>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('apiKey')">Show</button>
+                                    <button class="btn btn-outline-secondary copy-button" type="button" onclick="copyToClipboard('apiKey')">Copy</button>
                                 </div>
                             </div>
                         </div>
@@ -92,24 +92,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module">
-        import { copyToClipboard, togglePassword } from './js/info.js';
-        
-        // Set up event listeners for buttons
-        document.addEventListener('click', (event) => {
-            const button = event.target.closest('button[data-action]');
-            if (!button) return;
-
-            const action = button.dataset.action;
-            const target = button.dataset.target;
-
-            if (action === 'copy') {
-                copyToClipboard(target);
-            } else if (action === 'toggle') {
-                togglePassword(target);
-            }
-        });
-    </script>
     <script type="module" src="js/info.js"></script>
 </body>
 </html>

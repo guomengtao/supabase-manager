@@ -1,32 +1,5 @@
 import { supabase } from './config.js';
 
-// Export utility functions for HTML use
-export function copyToClipboard(elementId) {
-    const element = document.getElementById(elementId);
-    element.select();
-    document.execCommand('copy');
-    
-    const button = element.nextElementSibling;
-    const originalText = button.textContent;
-    button.textContent = 'Copied!';
-    setTimeout(() => {
-        button.textContent = originalText;
-    }, 2000);
-}
-
-export function togglePassword(elementId) {
-    const input = document.getElementById(elementId);
-    const button = input.nextElementSibling;
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        button.textContent = 'Hide';
-    } else {
-        input.type = 'password';
-        button.textContent = 'Show';
-    }
-}
-
 class ProjectInfo {
     constructor() {
         if (!supabase) {
@@ -39,6 +12,10 @@ class ProjectInfo {
         this.loadProjectInfo();
         this.loadTableInfo();
         this.setupRefreshButton();
+
+        // Make utility functions globally available
+        window.copyToClipboard = this.copyToClipboard;
+        window.togglePassword = this.togglePassword;
     }
 
     showError(message) {
@@ -61,71 +38,41 @@ class ProjectInfo {
             const tablesInfo = document.getElementById('tablesInfo');
             const dbStats = document.getElementById('dbStats');
 
-            // Get list of tables using a direct query
+            // Get list of tables using a direct SQL query
             const { data: tables, error } = await this.supabase
-                .rpc('get_tables')
-                .select('*');
+                .from('articles')
+                .select('*', { count: 'exact', head: true });
 
-            if (error) {
-                // Fallback to a simpler query if RPC fails
-                const { data: fallbackTables, error: fallbackError } = await this.supabase
-                    .from('articles')  // Query a known table
-                    .select('*', { count: 'exact', head: true });
+            if (error) throw error;
 
-                if (fallbackError) throw fallbackError;
-
-                // Use a simple display for fallback
-                if (tablesInfo) {
-                    tablesInfo.innerHTML = `
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Table Name</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>articles</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary" onclick="window.projectInfo.viewTable('articles')">
-                                            View Data
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    `;
-                }
-
-                if (dbStats) {
-                    dbStats.innerHTML = `
-                        <div class="list-group">
-                            <div class="list-group-item">
-                                <div class="d-flex justify-content-between">
-                                    <span>Status:</span>
-                                    <strong class="text-success">Connected</strong>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-                return;
-            }
-
+            // List of known tables
+            const knownTables = ['articles', 'users', 'files', 'images'];
+            
             // Get row counts for each table
             const tableStats = await Promise.all(
-                tables.map(async (table) => {
-                    const { count, error: countError } = await this.supabase
-                        .from(table.table_name)
-                        .select('*', { count: 'exact', head: true });
-                    
-                    return {
-                        name: table.table_name,
-                        count: countError ? '?' : count
-                    };
+                knownTables.map(async (tableName) => {
+                    try {
+                        const { count, error: countError } = await this.supabase
+                            .from(tableName)
+                            .select('*', { count: 'exact', head: true });
+                        
+                        return {
+                            name: tableName,
+                            count: countError ? '?' : count,
+                            exists: !countError
+                        };
+                    } catch (e) {
+                        return {
+                            name: tableName,
+                            count: '?',
+                            exists: false
+                        };
+                    }
                 })
             );
+
+            // Filter out non-existent tables
+            const existingTables = tableStats.filter(table => table.exists);
 
             // Display database statistics
             if (dbStats) {
@@ -134,13 +81,13 @@ class ProjectInfo {
                         <div class="list-group-item">
                             <div class="d-flex justify-content-between">
                                 <span>Total Tables:</span>
-                                <strong>${tables.length}</strong>
+                                <strong>${existingTables.length}</strong>
                             </div>
                         </div>
                         <div class="list-group-item">
                             <div class="d-flex justify-content-between">
                                 <span>Total Records:</span>
-                                <strong>${tableStats.reduce((sum, table) => sum + (typeof table.count === 'number' ? table.count : 0), 0)}</strong>
+                                <strong>${existingTables.reduce((sum, table) => sum + (typeof table.count === 'number' ? table.count : 0), 0)}</strong>
                             </div>
                         </div>
                         <div class="list-group-item">
@@ -165,7 +112,7 @@ class ProjectInfo {
                             </tr>
                         </thead>
                         <tbody>
-                            ${tableStats.map(table => `
+                            ${existingTables.map(table => `
                                 <tr>
                                     <td>${this.escapeHtml(table.name)}</td>
                                     <td>${table.count}</td>
@@ -256,6 +203,32 @@ class ProjectInfo {
         } catch (error) {
             console.error('Error viewing table:', error);
             alert('Error loading table data');
+        }
+    }
+
+    copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        element.select();
+        document.execCommand('copy');
+        
+        const button = element.nextElementSibling;
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 2000);
+    }
+
+    togglePassword(elementId) {
+        const input = document.getElementById(elementId);
+        const button = input.nextElementSibling;
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            button.textContent = 'Hide';
+        } else {
+            input.type = 'password';
+            button.textContent = 'Show';
         }
     }
 
