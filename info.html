@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Info - Supabase Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -42,56 +43,53 @@
 
     <div class="container mt-4">
         <h1>Project Information</h1>
-        
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Project Details</h5>
-                        <div id="projectDetails">
-                            <div class="mb-3">
-                                <label class="fw-bold">Project URL:</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="projectUrl" readonly>
-                                    <button class="btn btn-outline-secondary copy-button" type="button" onclick="copyToClipboard('projectUrl')">Copy</button>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="fw-bold">API Key:</label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" id="apiKey" readonly>
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('apiKey')">Show</button>
-                                    <button class="btn btn-outline-secondary copy-button" type="button" onclick="copyToClipboard('apiKey')">Copy</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <form id="projectInfoForm" class="mt-4" onsubmit="return false;">
+            <div class="mb-3">
+                <label for="projectUrl" class="form-label">Project URL</label>
+                <input type="url" class="form-control" id="projectUrl" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="apiKey" class="form-label">API Key</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="apiKey" readonly>
+                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('apiKey')">
+                        <i class="bi bi-eye"></i>
+                    </button>
                 </div>
             </div>
-            
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Database Statistics</h5>
-                        <div id="dbStats">Loading...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </form>
+    </div>
 
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Tables Information</h5>
-                        <div id="tablesInfo" class="table-responsive">Loading...</div>
-                    </div>
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Database Statistics</h5>
+                    <div id="dbStats">Loading...</div>
                 </div>
             </div>
         </div>
     </div>
 
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Tables Information</h5>
+                    <div id="tablesInfo" class="table-responsive">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { togglePassword, copyToClipboard, showToast } from './js/utils.js';
+        window.togglePassword = togglePassword;
+        window.copyToClipboard = copyToClipboard;
+        window.showToast = showToast;
+    </script>
     <script type="module" src="js/info.js"></script>
     <script type="module" src="js/components/footer.js"></script>
 </body>

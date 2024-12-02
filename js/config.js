@@ -89,14 +89,16 @@ const CONFIG = {
 // Export the configuration and Supabase client
 export { CONFIG };
 
-import { createClient } from '@supabase/supabase-js'
+const CONFIG = {
+    supabaseUrl: 'https://tkcrnfgnspvtzwbbvyfv.supabase.co',
+    supabaseKey: 'your-anon-key'  // Replace with your actual anon key
+};
 
-export const supabaseClient = createClient(
-    'https://tkcrnfgnspvtzwbbvyfv.supabase.co',
-    'your-anon-key'  // Replace with your actual anon key
-)
+// Initialize Supabase client
+const supabase = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
 
-export const REQUIRED_TABLES = {
+// Required tables definition
+const REQUIRED_TABLES = {
     users: `
         create table if not exists users (
             id uuid not null primary key,
@@ -133,23 +135,34 @@ export const REQUIRED_TABLES = {
             content text
         )
     `
-}
+};
 
-export async function initializeTables() {
+// Initialize tables function
+async function initializeTables() {
     try {
         for (const [tableName, createSQL] of Object.entries(REQUIRED_TABLES)) {
-            const { error } = await supabaseClient.rpc('create_table_if_not_exists', {
+            const { error } = await supabase.rpc('create_table_if_not_exists', {
                 table_sql: createSQL
-            })
+            });
             
             if (error && !error.message.includes('already exists')) {
-                console.error(`Error creating table ${tableName}:`, error)
+                console.error(`Error creating table ${tableName}:`, error);
             }
         }
     } catch (err) {
-        console.error('Error initializing tables:', err)
+        console.error('Error initializing tables:', err);
     }
 }
+
+// Export configuration and utilities
+export { CONFIG, supabase, initializeTables, REQUIRED_TABLES };
+
+import { createClient } from '@supabase/supabase-js'
+
+export const supabaseClient = createClient(
+    'https://tkcrnfgnspvtzwbbvyfv.supabase.co',
+    'your-anon-key'  // Replace with your actual anon key
+)
 
 // Call this when the app starts
 window.addEventListener('load', initializeTables)
