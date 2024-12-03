@@ -9,17 +9,18 @@
   <h1>Connect to Supabase</h1>
   <div id="data"></div>
 
+  <!-- Include the Supabase JavaScript Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    // Step 1: Initialize Supabase
+    // Initialize Supabase client
     const SUPABASE_URL = 'https://tkcrnfgnspvtzwbbvyfv.supabase.co'; // Replace with your Project URL
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrY3JuZmduc3B2dHp3YmJ2eWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA5ODgwMTgsImV4cCI6MjA0NjU2NDAxOH0.o4kZY3X0XxcpM3OHO3yw7O3of2PPtXdQ4CBFgp3CMO8'; // Replace with your Public API Key
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Step 2: Fetch Data Example
+    // Function to fetch data
     async function fetchData() {
       const { data, error } = await supabase
-        .from('your-table-name') // Replace with your table name
+        .from('articles') // Replace with your table name
         .select('*');
       
       if (error) {
@@ -28,10 +29,11 @@
         return;
       }
       
-      // Display data
+      // Display fetched data in the HTML
       document.getElementById('data').textContent = JSON.stringify(data, null, 2);
     }
 
+    // Call fetchData after Supabase initialization
     fetchData();
   </script>
 </body>
