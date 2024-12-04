@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase Data Display</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      color: #333;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #0078d4;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    #data {
+      margin-top: 20px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #0078d4;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    .loading {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 16px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Supabase Data Display</h1>
+    <div class="loading" id="loading">Loading data, please wait...</div>
+    <div id="data"></div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://tkcrnfgnspvtzwbbvyfv.supabase.co/rest/v1';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrY3JuZmduc3B2dHp3YmJ2eWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA5ODgwMTgsImV4cCI6MjA0NjU2NDAxOH0.o4kZY3X0XxcpM3OHO3yw7O3of2PPtXdQ4CBFgp3CMO8'; // Replace with your API key
+
+    async function fetchData() {
+      const loadingElement = document.getElementById('loading');
+      const dataContainer = document.getElementById('data');
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/articles`, {
+          method: 'GET',
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+          },
+        });
+
+        const data = await response.json();
+        console.log(data);
+
+        // Clear loading text
+        loadingElement.style.display = 'none';
+
+        // Generate HTML table for the data
+        if (data.length > 0) {
+          let table = `<table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Content</th>
+                <th>Created At</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+          data.forEach(item => {
+            table += `
+              <tr>
+                <td>${item.id}</td>
+                <td>${item.title}</td>
+                <td>${item.content}</td>
+                <td>${new Date(item.created_at).toLocaleString()}</td>
+              </tr>
+            `;
+          });
+
+          table += `</tbody></table>`;
+          dataContainer.innerHTML = table;
+        } else {
+          dataContainer.innerHTML = '<p>No data found.</p>';
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        loadingElement.style.display = 'none';
+        dataContainer.innerHTML = '<p style="color: red;">Failed to load data. Please try again later.</p>';
+      }
+    }
+
+    // Auto-fetch data on page load
+    document.addEventListener('DOMContentLoaded', fetchData);
+  </script>
+</body>
+</html>

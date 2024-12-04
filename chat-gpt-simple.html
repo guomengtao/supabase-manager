@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Supabase Fetch</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    #data {
+      margin-top: 20px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      white-space: pre-wrap; /* Preserve formatting for JSON */
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fetch Data from Supabase</h1>
+  <button onclick="fetchData()">Fetch Data</button>
+  <div id="data">Click the button to fetch data...</div>
+
+  <script>
+    const SUPABASE_URL = 'https://tkcrnfgnspvtzwbbvyfv.supabase.co/rest/v1';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrY3JuZmduc3B2dHp3YmJ2eWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA5ODgwMTgsImV4cCI6MjA0NjU2NDAxOH0.o4kZY3X0XxcpM3OHO3yw7O3of2PPtXdQ4CBFgp3CMO8'; // Replace with your API key
+
+    async function fetchData() {
+      const response = await fetch(`${SUPABASE_URL}/articles`, {
+        method: 'GET',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+        },
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      // Display the fetched data in the HTML
+      document.getElementById('data').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>

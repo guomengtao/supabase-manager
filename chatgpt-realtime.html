@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase Data Display</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Connect to Supabase!</h1>
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Content</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data will be dynamically inserted here -->
+    </tbody>
+  </table>
+
+  <!-- Include the Supabase JavaScript Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    // 初始化 Supabase 客户端
+    const SUPABASE_URL = 'https://tkcrnfgnspvtzwbbvyfv.supabase.co'; // 替换为你的项目 URL
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrY3JuZmduc3B2dHp3YmJ2eWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA5ODgwMTgsImV4cCI6MjA0NjU2NDAxOH0.o4kZY3X0XxcpM3OHO3yw7O3of2PPtXdQ4CBFgp3CMO8'; // 替换为你的公共 API 密钥
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // 获取数据的函数
+    async function fetchData() {
+      const { data, error } = await supabaseClient
+        .from('articles') // 替换为你的数据表名
+        .select('*');
+      
+      if (error) {
+        console.error('Error fetching data:', error);
+        return;
+      }
+      
+      // 将数据插入到表格中
+      const tableBody = document.querySelector('#data-table tbody');
+      tableBody.innerHTML = ''; // 清空现有的行
+      data.forEach(item => {
+        const row = `
+          <tr>
+            <td>${item.id}</td>
+            <td>${item.title}</td>
+            <td>${item.content}</td>
+            <td>${new Date(item.created_at).toLocaleString()}</td>
+          </tr>
+        `;
+        tableBody.innerHTML += row;
+      });
+    }
+
+    // 实时监听插入数据
+    supabaseClient
+      .from('articles')  // 替换为你的数据表名
+      .on('INSERT', (payload) => {
+        console.log('New data:', payload.new);
+        const tableBody = document.querySelector('#data-table tbody');
+        const newRow = `
+          <tr>
+            <td>${payload.new.id}</td>
+            <td>${payload.new.title}</td>
+            <td>${payload.new.content}</td>
+            <td>${new Date(payload.new.created_at).toLocaleString()}</td>
+          </tr>
+        `;
+        tableBody.innerHTML += newRow;
+      })
+      .subscribe();
+
+    // 初始化时获取数据
+    fetchData();
+  </script>
+</body>
+</html>
