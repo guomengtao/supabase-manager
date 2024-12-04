@@ -90,25 +90,33 @@
     }
 
     // 实时监听插入数据
-    supabaseClient
-      .from('articles')  // 替换为你的数据表名
-      .on('INSERT', (payload) => {
-        console.log('New data:', payload.new);
-        const tableBody = document.querySelector('#data-table tbody');
-        const newRow = `
-          <tr>
-            <td>${payload.new.id}</td>
-            <td>${payload.new.title}</td>
-            <td>${payload.new.content}</td>
-            <td>${new Date(payload.new.created_at).toLocaleString()}</td>
-          </tr>
-        `;
-        tableBody.innerHTML += newRow;
-      })
-      .subscribe();
+    async function subscribeToInsertions() {
+      const channel = supabaseClient
+        .channel('realtime:articles') // 替换为你的表名
+        .on('postgres_changes', 
+          { event: 'INSERT', schema: 'public', table: 'articles' }, 
+          (payload) => {
+            console.log('New data:', payload.new);
+            const tableBody = document.querySelector('#data-table tbody');
+            const newRow = `
+              <tr>
+                <td>${payload.new.id}</td>
+                <td>${payload.new.title}</td>
+                <td>${payload.new.content}</td>
+                <td>${new Date(payload.new.created_at).toLocaleString()}</td>
+              </tr>
+            `;
+            tableBody.innerHTML += newRow;
+          }
+        );
+
+      await channel.subscribe();
+    }
 
     // 初始化时获取数据
     fetchData();
+    // 订阅实时更新
+    subscribeToInsertions();
   </script>
 </body>
 </html>
